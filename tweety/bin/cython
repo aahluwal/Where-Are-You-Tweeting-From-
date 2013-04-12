@@ -1,0 +1,9 @@
+#!/Users/alyssaahluwalia/tweets/tweety/bin/python
+# EASY-INSTALL-ENTRY-SCRIPT: 'Cython==0.18','console_scripts','cython'
+__requires__ = 'Cython==0.18'
+import sys
+from pkg_resources import load_entry_point
+
+sys.exit(
+   load_entry_point('Cython==0.18', 'console_scripts', 'cython')()
+)
