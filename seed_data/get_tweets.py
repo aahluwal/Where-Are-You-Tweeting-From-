@@ -19,7 +19,7 @@ class CustomStreamListener(tweepy.StreamListener):
 
     def on_status(self, status):
 	if status.geo:
-	    with open('tweet_data_json_11.txt', 'a') as outfile:
+	    with open('tweet_data_json_12.txt', 'a') as outfile:
 		output = {}
 		output['screen_name'] = status.author.screen_name
 		output['coordinates'] = status.coordinates
