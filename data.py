@@ -5,6 +5,10 @@ import model
 from sklearn import feature_selection
 import string
 
+# Main Naiive Bayes classification equation derived from http://nlp.stanford.edu/IR-book/html/htmledition/naive-bayes-text-classification-1.html
+#This paper says that P(Document/Class) AKA P(Tweet/City) is relative to P(City)*P(Word1/CITY)*P(Word2/CITY)*...*P(Wordn/CITY). I calculate this for every City and rank 
+#the cities to see which city a tweet most likely came from
+
 #global instances
 los_angeles = Los_Angeles()
 san_francisco = San_Francisco()
@@ -145,7 +149,7 @@ def create_tweet_total_count():
 	    total_tweet_count += 1.0
     return float(total_tweet_count)
 
-# CHANGED TO: P(W/City) = Number of times the word occurs in the city / total word count for the city. To do smoothing, then add 1 to the numerator and add len(corpus) to denominator.
+# P(W/City) = Number of times the word occurs in the city / total word count for the city. To do smoothing, then add 1 to the numerator and add len(corpus) to denominator.
 def prob_word_given_city(city, word):
    
     number_times_word_in_city = find_count_of_word_in_city(city,word)
@@ -159,7 +163,7 @@ def find_leng_city_corpus(city):
     cty_corpus_dict = city_corpus_dict()
     dic = cty_corpus_dict[city]
     leng_city_corpus = len(dic.keys())
-    return leng_city_corpus
+    return float(leng_city_corpus)
 
 #Finds number of unique word entries in total
 def find_leng_total_corpus():
@@ -207,7 +211,7 @@ def find_count_of_word_total(word):
     return float(count) 
 
 #NOT CALLED in relative formula
-# CHANGED TO: (Total number of times 'word' occurs outside of the city + 1)/ (total word count for those cities + len(total_corpus))
+# P(W/NC)= (Total number of times 'word' occurs outside of the city + 1)/ (total word count for those cities + len(total_corpus))
 #def prob_word_given_not_city(city,word):
 #       
 #   count_of_word_outside_city = find_count_of_word_total(word) - find_count_of_word_in_city(city,word) + 1
@@ -230,6 +234,7 @@ def find_count_of_word_total(word):
 
 #final formula for Prob(City/Tweet)-- puting together components from two function below this.p = (p1p2..pn)/(p1p2..pn+(1-p1)(1-p2)..(1-pn)) 
 #CHANGED to log(P(City)+log(P(w1/City)+log(P(w2/City))...
+
 def prob_tweet_from_city(city,tweet_string):
     x = 0
     tweet_words = tweet_string.encode("utf-8").lower().translate(string.maketrans("",""),string.punctuation).split()
