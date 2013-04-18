@@ -1,3 +1,6 @@
+# Messing with data.py 
+
+
 from model import session, Tweet, San_Francisco, Los_Angeles, Houston, New_York, Atlanta, Chicago, Miami, Seattle
 from math import sqrt, log
 import math
@@ -15,27 +18,19 @@ new_york = New_York()
 seattle = Seattle()
 chicago = Chicago()
 cities = [los_angeles, san_francisco, houston, miami, atlanta, new_york, chicago, seattle]
-
-
-
+CITY_TWEET_MAP = None
 
 #returns list of US tweets
-ALL_TWEETS = []
 def get_tweet_list():
-    global ALL_TWEETS
-    if ALL_TWEETS:
-	return ALL_TWEETS
-
     all_tweets = session.query(Tweet).filter(Tweet.longitude > -125.0).filter(Tweet.longitude < -65.0).filter(Tweet.latitude > 25.0).filter(Tweet.latitude < 50.0).all()
     list_of_tweets = []
     for tweet in all_tweets:
 	if tweet.text.startswith("RT"):
 	    continue
 	else:
+#	    decoded_tweet = tweet.__repr__().decode("latin-1")
 	    list_of_tweets.append(tweet)
-
-    ALL_TWEETS = list_of_tweets
-    return ALL_TWEETS
+    return list_of_tweets 
 
 #pythagorean theorem to calculate closest city
 def distance_between_2_points(start, end):
@@ -59,12 +54,10 @@ def closest_major_cities(list_of_tweets):
     return tweet_cities
 
 #returns dictionary with cities/instances as keys and values of lists of the corresponding tweets 
-CITY_TWEET_MAP = None
 def map_cities_to_tweets():
     global CITY_TWEET_MAP
     if CITY_TWEET_MAP:
 	return CITY_TWEET_MAP
-	
     list_of_us_tweets = get_tweet_list()
     major_cities = closest_major_cities(list_of_us_tweets)
     tweet_to_city_dict = {}
@@ -76,9 +69,8 @@ def map_cities_to_tweets():
 	else:
 	    previous = tweet_to_city_dict[city]
 	    tweet_to_city_dict[city] = tweet_to_city_dict[city] + [tweet] 
-
     CITY_TWEET_MAP = tweet_to_city_dict
-    return CITY_TWEET_MAP
+    return tweet_to_city_dict 
 
 
 
@@ -145,13 +137,22 @@ def create_tweet_total_count():
 	    total_tweet_count += 1.0
     return float(total_tweet_count)
 
+
 # CHANGED TO: P(W/City) = Number of times the word occurs in the city / total word count for the city. To do smoothing, then add 1 to the numerator and add len(corpus) to denominator.
 def prob_word_given_city(city, word):
-   
     number_times_word_in_city = find_count_of_word_in_city(city,word)
     count_city_word_total = create_city_word_count(city)
     leng_city_corpus = find_leng_city_corpus(city)
     prob_w_given_c = (number_times_word_in_city +1.0)/(count_city_word_total + leng_city_corpus)
+    print 'Probability of %s given %s: %s' % (
+	    word,
+	    city.name,
+	    prob_w_given_c)
+    debug_data = {}
+    debug_data['times_word_in_city'] = number_times_word_in_city
+    debug_data['count_city_word_total'] = count_city_word_total
+    debug_data['leng_city_corpus'] = leng_city_corpus
+    print debug_data
     return float(prob_w_given_c)
 
 #Finds number of unique word entries in a city corpus 
@@ -198,127 +199,139 @@ def find_count_of_word_in_city(city, word):
 def find_count_of_word_total(word):
     word = str(word)
     tweet_to_cty_dict = map_cities_to_tweets()
+    count = 1
     for city in cities:
-	tweet_list = tweet_to_city_dict[city]
+	tweet_list = tweet_to_cty_dict[city]
 	for tweet in tweet_list:
 	    for item in tweet.text.encode("utf-8").lower().translate(string.maketrans("",""),string.punctuation).split():
 		if item==word:
 		    count+=1.0
     return float(count) 
 
-#NOT CALLED in relative formula
-# CHANGED TO: (Total number of times 'word' occurs outside of the city + 1)/ (total word count for those cities + len(total_corpus))
-#def prob_word_given_not_city(city,word):
-#       
-#   count_of_word_outside_city = find_count_of_word_total(word) - find_count_of_word_in_city(city,word) + 1
-#   length_tot_cor = find_length_total_corpus()
-#   length_cty_cop = find_length_city_corpus()
-#   total_nc_word_count = create_total_word_count() - create_city_word_count() + (length_tot_cor - length_cty_cop)
-#   prob_w_given_nc = count_of_word_outside_city/total_nc_word_count
-#   return float(prob_w_given_nc)
+#NotCalled in relative formula
+#P(W/Not-City) = We divide the difference between # of tweets total containing word and # of tweets in city containing word by difference between # of total tweets and # of tweets in city.
+#   Ultimately means dividing # of tweets that contain the word but are not in the city, by the # of tweets total that are not in the city  
+# CHANGED FROM: (Total number of times 'word' occurs outside of the city + 1)/ (total word count for those cities + len(total_corpus))
+def prob_word_given_not_city(city,word):
+    
+
+    
+   count_of_word_outside_city = find_count_of_word_total(word) - find_count_of_word_in_city(city,word) + 1
+   length_tot_cor = find_leng_total_corpus()
+   length_cty_cop = find_leng_city_corpus(city)
+   total_nc_word_count = create_total_word_count() - create_city_word_count(city) + (length_tot_cor - length_cty_cop)
+   prob_w_given_nc = count_of_word_outside_city/total_nc_word_count
+   return float(prob_w_given_nc)
 
 #cumulative P(City/Word)-- would take from above 4 functions, but is relative to P(City)*P(w1/City)*P(w2/City)... corrected with log to account for rare words
 #Not called since it is relative to ^
-#def prob_city_given_word(city,word):
-#    prob_word_given_c = prob_word_given_city(city,word)
-#    prob_city = prob_city_overall(city)
-#    prob_word_given_not_c = prob_word_given_not_city(city,word)
-#    prob_not_c = prob_not_city(city)
+def prob_city_given_word(city,word):
+    prob_word_given_c = prob_word_given_city(city,word)
+    prob_city = prob_city_overall(city)
+    prob_word_given_not_c = prob_word_given_not_city(city,word)
+    prob_not_c = prob_not_city(city)
 
-#    prob_city_given_word = (prob_word_given_c*prob_city)/(prob_word_given_c*prob_city+prob_word_given_not_c*prob_not_c)
-#    return float(prob_city_given_word) 
+    prob_city_given_word = (prob_word_given_c*prob_city)/(prob_word_given_c*prob_city+prob_word_given_not_c*prob_not_c)
+    return float(prob_city_given_word) 
 
-#final formula for Prob(City/Tweet)-- puting together components from two function below this.p = (p1p2..pn)/(p1p2..pn+(1-p1)(1-p2)..(1-pn)) 
-#CHANGED to log(P(City)+log(P(w1/City)+log(P(w2/City))...
+#P(C/Tweet)
+#new formula to deal with underflow
 def prob_tweet_from_city(city,tweet_string):
-    x = 0
     tweet_words = tweet_string.encode("utf-8").lower().translate(string.maketrans("",""),string.punctuation).split()
-    for word in tweet_words:
-	prob_w_given_c = prob_word_given_city(city, word)
-	print 'P(w | c) = %s for (w: %s, c: %s)' % (
-		prob_w_given_c,
-		word,
-		city.name)
-	x += math.log(prob_w_given_c)
-    prob_city_given_tweet_relative_to = math.log(prob_city_overall(city)) + x 
-    return float(prob_city_given_tweet_relative_to)
+    probs= [prob_city_given_word(city,word) for word in tweet_words]
+    eta = sum([math.log(1.0-prob)-math.log(prob) for prob in probs]) 
+    total_prob = 1.0/(1.0 + math.exp(eta))
+    return total_prob 
 
-def find_best_city_match(tweet_string):
-    highest_fit_city = prob_tweet_from_city(cities[0], tweet_string)
-    for i in range(1,len(cities)):
-	if prob_tweet_from_city(cities[i],tweet_string) > highest_fit_city:
-	    highest_fit_city = prob_tweet_from_city(cities[i],tweet_string)
-    return  cities[i].name	
 
-#Creates a list of relative probalities for each City
-def create_list_of_probs(tweet_string):
-    new_list = []
+
+def choose_amongst_cities(tweet_string):
+    winner = (cities[0].name, prob_tweet_from_city(cities[0], tweet_string))
+    prob_winner = winner[1]
+    for i in range(1, len(cities)):
+	prob_from_this_city = prob_tweet_from_city(cities[i], tweet_string)
+	if prob_from_this_city > prob_winner:
+	    prob_winner = prob_from_this_city
+	    winner = (cities[i].name, prob_from_this_city)
+    return winner
+
+def print_all_amongst_cities(tweet_string):
+    city_probs = []
+    for i in range(0, len(cities)):
+	city_probs.append((cities[i].name, prob_tweet_from_city(cities[i], tweet_string)))
+    return city_probs
+
+
+
+
+
+
+#below were functions designed to fit sklearn toolkit
+def find_feature_label_list():
+    corpus_feature_label_list = []
+    d = map_cities_to_tweets()
+    cities = d.keys()
     for city in cities:
-	tu = (city.name, prob_tweet_from_city(city, tweet_string))
-	new_list.append(tu)
-    return new_list
+	tweet_object_list = d[city]
+	for tweet in tweet_object_list:
+	    tweet_string = tweet.text.encode("utf-8").lower()
+	    no_punc_string = tweet_string.translate(string.maketrans("",""),string.punctuation)
+	    word_list = no_punc_string.split()
+	    for word in word_list:
+		if word not in corpus_feature_label_list:
+		    corpus_feature_label_list.append(word) 
+    return corpus_feature_label_list
 
-#Chooses the highest relative probability amongst the cities
-def pick_winner(tweet_string):
-    new_list = create_list_of_probs(tweet_string)
-    x = (new_list[0][0], new_list[0][1])
-    for i in range(1, len(new_list)):
-	if new_list[i][1]  > x[1]:
-	    x = (new_list[i][0], new_list[i][1])
-    return x
-#
-#
-#
-##below were functions designed to fit sklearn toolkit
-#def find_feature_label_list():
-#    corpus_feature_label_list = []
-#    d = map_cities_to_tweets()
-#    cities = d.keys()
-#    for city in cities:
-#	tweet_object_list = d[city]
-#	for tweet in tweet_object_list:
-#	    tweet_string = tweet.text.encode("utf-8").lower()
-#	    no_punc_string = tweet_string.translate(string.maketrans("",""),string.punctuation)
-#	    word_list = no_punc_string.split()
-#	    for word in word_list:
-#		if word not in corpus_feature_label_list:
-#		    corpus_feature_label_list.append(word) 
-#    return corpus_feature_label_list
 
-#
-#def create_feature_vector(text,corpus_list):
-#    text_vector = [0]*len(corpus_list)
-#    word_list = text.encode("utf-8").split()
-#    for i in range(0,len(word_list)):
-#	for j in range(0, len(corpus_list)):
-#	    if word_list[i] == corpus_list[j]:
-#		text_vector[j] += 1
-#    return text_vector 
-#
-#
-#def create_feature_matrix():
-#    feature_matrix = []
-#    d = map_cities_to_tweets()
-#    cities = d.keys()
-#    corpus_list = find_feature_label_list()
-#    print corpus_list
-#    labels_list = []
-#    for city in cities:
-#	tweets = d[city]
-#	for tweet in tweets:
-#	    vector = create_feature_vector(tweet.text,corpus_list)
-#	    feature_matrix.append(vector)
-#	    labels_list.append(city.name)
-#    return feature_matrix, labels_list, corpus_list
-#
+def create_feature_vector(text,corpus_list):
+    text_vector = [0]*len(corpus_list)
+    word_list = text.encode("utf-8").split()
+    for i in range(0,len(word_list)):
+	for j in range(0, len(corpus_list)):
+	    if word_list[i] == corpus_list[j]:
+		text_vector[j] += 1
+    return text_vector 
+
+
+def create_feature_matrix():
+    feature_matrix = []
+    d = map_cities_to_tweets()
+    cities = d.keys()
+    corpus_list = find_feature_label_list()
+    print corpus_list
+    labels_list = []
+    for city in cities:
+	tweets = d[city]
+	for tweet in tweets:
+	    vector = create_feature_vector(tweet.text,corpus_list)
+	    feature_matrix.append(vector)
+	    labels_list.append(city.name)
+    return feature_matrix, labels_list, corpus_list
+
+corpus = None
 def main():
+    global corpus
+   # feature_matrix, labels_list, corpus_list = create_feature_matrix()
+   # c2, pvals = feature_selection.chi2(feature_matrix, labels_list)
+   # print c2
+   # n_greatest = sorted(range(len(c2)), key=lambda i: c2[i])[-20:]
+   # for idx in n_greatest:
+#	print idx
+#	print corpus_list[idx]
+#	print ''
+   # print p
+    #p = choose_amongst_cities("beach party warm")
+    #print p
+   # q = print_all_amongst_cities("New York City for Life!")
+   # print q
+    #tweets = city_corpus_dict().items()
+    #ny = tweets[0]
+    #print ny[1]
 
-    q = create_list_of_probs("hella party")
-    print q
-    p = pick_winner("hella party")
+    
+    p = choose_amongst_cities("party")
     print p
-
-
-
+    q = print_all_amongst_cities("party")
+    print q
 if __name__ == "__main__":
     main()

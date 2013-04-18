@@ -1,0 +1,83 @@
+<DOCTYPE html>
+<html> 
+    <head> 
+	<meta name="viewport"  content="initial-scale=1.0, user-scalable=no" />
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+	    <title>Google Maps Multiple Markers</title> 
+	    <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"</script> 
+	    <style type="text/css">
+		html, body { height: 100%; }
+	    </style>
+	    <script type="text/javascript">
+		//<![CDATA[
+		var map = null;
+		function initialize() {
+		    var myOptions = {
+					zoom:10,
+					center: new google.maps.LatLng(35.92, -85.0),
+					mapTypeControl: true,
+					mapTypeControlOptions: {style: google.maps.MapTypeControlStyle.DROPDOWN_MENU},
+					navigationControl: true,
+					mapTypeId: google.maps.MapTypeId.ROADMAP
+				    }
+		    map = new google.maps.Map(document.getElementById("map_canvas"),
+									myOptions);
+		    google.maps.event.addListener(map, 'click', function() {
+			    infowindow.close();
+			    });
+
+
+
+		    var point =	new google.maps.LatLng(34.0522, -118.2436);
+		    var marker = createMarker(point, 'Los Angeles Region')	
+
+		    var point = new google.maps.LatLng(36.80, -122.75);
+		    var marker = createMarker(point,'San Francisco Region')
+
+		    var point = new google.maps.LatLng(40.0, -74.0);
+		    var marker = createMarker(point,'New York Region')
+
+		    var point = new google.maps.LatLng(41.878, -87.6298);
+		    var marker = createaMarker(point, 'Chicago Region')
+			
+		    var point = new google.maps.LatLng(47.609, -122.33);
+		    var marker = createMarker(point,'Seattle Region')
+
+		    var point = new google.maps.LatLng(33.749,-84.3879);
+		    var marker = createMarker(point,'Atlanta Region')
+
+		    var point = new google.maps.LatLng(29.760, -95.369);
+		    var marker = createMarker(point, 'Houston Region')
+
+		    var point = new google.maps.LatLng(25.7889, -80.2264);
+		    var marker = createMarker(point, 'Miami Region')
+					
+				    
+		}
+		    
+		    var infowindow = new google.maps.InfoWindow(;         
+			{
+			    size: new google.maps.size(150,50)
+			    });
+		    
+		    function createMarker(latlng, html) {
+			var contentString = html;
+			var marker = new google.maps.Marker({
+			    position: latlng,
+			    map: map,
+			    zIndex: Math.round(latlng.lat()*-100000)<<5
+			    });
+
+			google.maps.event.addListener(marker, 'click', function() {
+			    infowindow.setContent(contentString);
+			    infowindow.open(map,marker);
+			    });
+		    }
+}
+		
+	    	</script>
+	    </head>
+	    <body style="margin:0px; padding:0px;" onload="initialize()">
+		<div id="map_canvas" style="width: 550px; height: 450px"></div>
+	    </body>	    
+</html>

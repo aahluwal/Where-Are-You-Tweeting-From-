@@ -2,8 +2,12 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, DateTime, create_engine, Float
 from sqlalchemy.orm import sessionmaker, scoped_session
 from datetime import datetime 
+import os
 
-engine = create_engine("postgresql://localhost/twitter", echo=False)
+
+#db_uri = os.environ.get("DATABASE_URL", "postgresql://localhost/twitter")
+db_uri = os.environ.get("DATA_BASE_URL", "sqlite:///twitter.db")
+engine = create_engine(db_uri, echo=False)
 session = scoped_session(sessionmaker(bind=engine,
 				      autocommit = False,
   				      autoflush = False))
@@ -55,42 +59,55 @@ class Los_Angeles():
 	#los_angeles = Los_Angeles()
 	self.lon = -118.2436
 	self.lat = 34.0522
+	self.name = 'Los Angeles'
 
 class San_Francisco():
     def __init__(self):
 	#san_francisco = San_Francisco()
-	self.lon = -122.75
-	self.lat = 36.8
+	self.lon = -122.416534
+	self.lat = 37.781569
+	self.name = 'San Francisco'
 
 class Houston():
     def __init__(self):
 	self.lon = -95.369
 	self.lat = 29.760
+	self.name = 'Houston'
 	#houston = Houston()
 
 class Atlanta():
     def __init__(self):
 	self.lon = -84.3879
 	self.lat = 33.749
+	self.name = 'Atlanta'
 	#atlanta = Atlanta()
 
 class New_York():
     def __init__(self):
-	self.lon = -74
-	self.lat = -40
-	#new_york = New_York()
+	self.lon = -73.951721
+	self.lat = 40.703546
+	self.name = 'New York'
+	#new_york = New York()
 
 class Chicago():
     def __init__(self):
 	self.lon = -87.6298
 	self.lat = 41.878
+	self.name= 'Chicago'
 	#chicago = Chicago()
 
 class Miami(): 
     def __init__(self):
 	self.lon = -80.2264
 	self.lat = 25.7889
+	self.name = 'Miami'
 	#miami = Miami()
+
+class Seattle():
+    def __init__(self):
+	self.lon= -122.33
+	self.lat=47.609
+	self.name='Seattle'
     
 def create_db():
     Base.metadata.create_all(engine)

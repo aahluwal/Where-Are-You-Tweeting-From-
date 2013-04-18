@@ -1,0 +1,7 @@
+*.pyc
+.*.s[a-w][a-z]
+tweety/
+numpy/
+scipy/
+gitignore/
+
