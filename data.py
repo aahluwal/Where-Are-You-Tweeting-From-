@@ -1,9 +1,11 @@
-from model import session, Tweet, San_Francisco, Los_Angeles, Houston, New_York, Atlanta, Chicago, Miami, Seattle
-from math import sqrt, log
+from model import session, Tweet, Boston, San_Francisco, Los_Angeles, Houston, New_York, Atlanta, Chicago, Miami, Seattle
+from math import sqrt, log, sin, cos, radians, atan2
 import math
 import model
-from sklearn import feature_selection
 import string
+import operator
+import haversine
+from operator import itemgetter 
 
 # Main Naiive Bayes classification equation derived from http://nlp.stanford.edu/IR-book/html/htmledition/naive-bayes-text-classification-1.html
 #This paper says that P(Document/Class) AKA P(Tweet/City) is relative to P(City)*P(Word1/CITY)*P(Word2/CITY)*...*P(Wordn/CITY). I calculate this for every City and rank 
@@ -18,9 +20,19 @@ atlanta = Atlanta()
 new_york = New_York()
 seattle = Seattle()
 chicago = Chicago()
-cities = [los_angeles, san_francisco, houston, miami, atlanta, new_york, chicago, seattle]
+boston = Boston()
+cities = [los_angeles, san_francisco, houston, miami, atlanta, new_york, chicago, seattle, boston]
 
+def cosrad(n):
+    return math.cos(math.radians(n))
 
+#Limit tweet results to be within 100 miles/161km of a major city
+def distanceIsWithinHundredMiles(lon1,lat1,lon2,lat2):
+    d = haversine.haversine(lon1, lat1, lon2, lat2)
+    if d < 240:
+	return True
+    else:
+	return False 
 
 
 #returns list of US tweets
@@ -41,16 +53,13 @@ def get_tweet_list():
     ALL_TWEETS = list_of_tweets
     return ALL_TWEETS
 
-#pythagorean theorem to calculate closest city
-def distance_between_2_points(start, end):
-    lon1, lat1 = start
-    lon2, lat2 = end
-    dlon = lon2-lon1
-    dlat = lat2-lat1
-    distance = sqrt(((dlon)*(dlon))+((dlat)*(dlat)))
-    return float(distance)
 
-#returns list of closest cities that correspond to index of tweets
+#pythagorean theorem to calculate closest city in km
+def distance_between_2_points((lon1, lat1),(lon2, lat2)):
+    d = haversine.haversine(lon1, lat1, lon2, lat2)
+    return float(d)
+
+#Return list of tweets and their corresponding, closest city, given that the city is within 100 miles of the tweet 
 def closest_major_cities(list_of_tweets):
     tweet_cities = []
     for tweet in list_of_tweets:
@@ -59,7 +68,8 @@ def closest_major_cities(list_of_tweets):
 	    new_city = cities[i]
 	    if distance_between_2_points((closest_city.lon, closest_city.lat),(tweet.longitude,tweet.latitude)) > distance_between_2_points((new_city.lon, new_city.lat), (tweet.longitude,tweet.latitude)):
 		closest_city = new_city 
-	tweet_cities.append(closest_city)
+	if distanceIsWithinHundredMiles(tweet.longitude, tweet.latitude, closest_city.lon, closest_city.lat):
+	    tweet_cities.append((tweet, closest_city))
     return tweet_cities
 
 #returns dictionary with cities/instances as keys and values of lists of the corresponding tweets 
@@ -68,13 +78,12 @@ def map_cities_to_tweets():
     global CITY_TWEET_MAP
     if CITY_TWEET_MAP:
 	return CITY_TWEET_MAP
-	
-    list_of_us_tweets = get_tweet_list()
+    list_of_us_tweets = get_tweet_list()	
     major_cities = closest_major_cities(list_of_us_tweets)
     tweet_to_city_dict = {}
     for i in range(0, len(major_cities)):
-	tweet = list_of_us_tweets[i]
-	city = major_cities[i]
+	tweet = major_cities[i][0]
+	city = major_cities[i][1]
 	if city not in tweet_to_city_dict:
 	    tweet_to_city_dict[city] = [tweet]
 	else:
@@ -168,11 +177,12 @@ def find_leng_city_corpus(city):
 #Finds number of unique word entries in total
 def find_leng_total_corpus():
     length = 0.0
+    uniques = set()
     cty_corpus_dict = city_corpus_dict()
     for city in cities:
 	dic = cty_corpus_dict[city]
-	length += len(dic.keys())
-    return float(length)
+	uniques |= set(dic.keys())
+    return float(len(uniques))
 	    
 #P(City)- We will assume that the likelihood correlates to how well represented the city is in the whole sample size
 def prob_city_overall(city):
@@ -248,81 +258,43 @@ def prob_tweet_from_city(city,tweet_string):
     prob_city_given_tweet_relative_to = math.log(prob_city_overall(city)) + x 
     return float(prob_city_given_tweet_relative_to)
 
-def find_best_city_match(tweet_string):
-    highest_fit_city = prob_tweet_from_city(cities[0], tweet_string)
-    for i in range(1,len(cities)):
-	if prob_tweet_from_city(cities[i],tweet_string) > highest_fit_city:
-	    highest_fit_city = prob_tweet_from_city(cities[i],tweet_string)
-    return  cities[i].name	
+#def find_best_city_match(tweet_string):
+#    highest_fit_city = prob_tweet_from_city(cities[0], tweet_string)
+#    for i in range(1,len(cities)):
+#	if prob_tweet_from_city(cities[i],tweet_string) > highest_fit_city:
+#	    highest_fit_city = prob_tweet_from_city(cities[i],tweet_string)
+#   return  cities[i].name	
 
-#Creates a list of relative probalities for each City
+#Creates a list of relative probabilities for each City
 def create_list_of_probs(tweet_string):
     new_list = []
     for city in cities:
-	tu = (city.name, prob_tweet_from_city(city, tweet_string))
+	tu = (city, prob_tweet_from_city(city, tweet_string))
 	new_list.append(tu)
     return new_list
 
 #Chooses the highest relative probability amongst the cities
-def pick_winner(tweet_string):
-    new_list = create_list_of_probs(tweet_string)
-    x = (new_list[0][0], new_list[0][1])
-    for i in range(1, len(new_list)):
-	if new_list[i][1]  > x[1]:
-	    x = (new_list[i][0], new_list[i][1])
-    return x
-#
-#
-#
-##below were functions designed to fit sklearn toolkit
-#def find_feature_label_list():
-#    corpus_feature_label_list = []
-#    d = map_cities_to_tweets()
-#    cities = d.keys()
-#    for city in cities:
-#	tweet_object_list = d[city]
-#	for tweet in tweet_object_list:
-#	    tweet_string = tweet.text.encode("utf-8").lower()
-#	    no_punc_string = tweet_string.translate(string.maketrans("",""),string.punctuation)
-#	    word_list = no_punc_string.split()
-#	    for word in word_list:
-#		if word not in corpus_feature_label_list:
-#		    corpus_feature_label_list.append(word) 
-#    return corpus_feature_label_list
+#def pick_winner(tweet_string):
+#    new_list = create_list_of_probs(tweet_string)
+#    x = (new_list[0][0], new_list[0][1])
+#    for i in range(1, len(new_list)):
+#	if new_list[i][1]  > x[1]:
+#	    x = (new_list[i][0], new_list[i][1])
+#    return x
 
-#
-#def create_feature_vector(text,corpus_list):
-#    text_vector = [0]*len(corpus_list)
-#    word_list = text.encode("utf-8").split()
-#    for i in range(0,len(word_list)):
-#	for j in range(0, len(corpus_list)):
-#	    if word_list[i] == corpus_list[j]:
-#		text_vector[j] += 1
-#    return text_vector 
-#
-#
-#def create_feature_matrix():
-#    feature_matrix = []
-#    d = map_cities_to_tweets()
-#    cities = d.keys()
-#    corpus_list = find_feature_label_list()
-#    print corpus_list
-#    labels_list = []
-#    for city in cities:
-#	tweets = d[city]
-#	for tweet in tweets:
-#	    vector = create_feature_vector(tweet.text,corpus_list)
-#	    feature_matrix.append(vector)
-#	    labels_list.append(city.name)
-#    return feature_matrix, labels_list, corpus_list
-#
+#Sorts list of tuples (city, prob) by probability in descending order
+def create_ranking(tweet_string):
+    probs = create_list_of_probs(tweet_string)
+    probs.sort(key=operator.itemgetter(1), reverse=True)
+    x = probs
+    return x
+
 def main():
 
-    q = create_list_of_probs("hella party")
-    print q
-    p = pick_winner("hella party")
-    print p
-
+    #p = create_ranking("There's a party on the beach today")
+    #print p
+    g = map_cities_to_tweets()
+    print g
 
 
 if __name__ == "__main__":

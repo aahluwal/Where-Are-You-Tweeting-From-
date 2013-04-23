@@ -3,7 +3,7 @@ import sqlalchemy.exc
 import json 
 
 def load_tweet_data(session):
-    in_file = open("seed_data/seeded_files/tweet_data_json_11.txt")
+    in_file = open("seed_data/seeded_files/tweet_data_json_16.txt")
     input_text = in_file.read()
     list_of_dicts = json.loads(input_text)
     for dict in list_of_dicts:

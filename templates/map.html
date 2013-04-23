@@ -1,37 +1,66 @@
-<! DOCTYPE html>
-<html>
+<!DOCTYPE>
+<html lang=eng>
     <head>
-	<title>Map of the United States</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
 	<meta charset="utf-8">
-	<style type="text/css">
-	    html, body, #map-canvas {
-		height: 100%; 
-		margin: 0; 
-		padding: 0;
-	    }
-	</style>
-	    <script src="http://maps.googleapis.com/maps/api/js?key=AIzaSyARRKy8KNNCwmui3Hlqy9T8asSHQJwJyL0&sensor=false"></script>
+	<title>Where Are You Tweeting From?</title>
+	<link href="static/css/bootstrap.min.css" rel="stylesheet" media="screen">
+	<link href="static/css/bootstrap-responsive.css" rel="stylesheet">
+	<link href="static/css/docs.css" rel="stylesheet">
+	<link href="static/js/google-code-prettify/prettify.css" rel="stylesheet">
 
-	<script type="text/javascript">
-	    var map;
-	    function initialize() {
-		var mapOptions = {
-		    center: new google.maps.LatLng(35, -85),
-		    zoom: 4, 
-		    mapTypeId: google.maps.MapTypeId.ROADMAP
-		};
-		var map = new google.maps.Map(document.getElementById("map-canvas"),
-		    mapOptions);
-
-	    }
-	    google.maps.event.addDomListener(window, 'load', initialize);
-	</script>
     </head>
     <body>
-	<div id="map-canvas"%/></div>
+	<div class="container">
+	    <div class="navbar navbar-inverse navbar-fixed-top">
+		<div class="navbar-inner">
+		    <a class="brand" href="#">Text Classification</a>
+		    <ul class="nav">
+			<li class="active"><a href="/">Classify Text</a></li>
+			<li><a href="/top_words">Top Words</a></li>
+		    </ul>
+		</div>
+	    </div>
+	    <div class="content" style="margin-top: 50px">
+		<form class="form-search" action="/classify_text" method="POST">
+		    <textarea name="tweet" rows="3" style="width:1200px;" placeholder='Type in a past tweet. The more of your past history you include, the more accurate this will be'.></textarea>
+		    <button type="submit" class="btn">Search</button>
+		</form>
+		<div class="container-fluid">
+		    <h1>Where Are You Tweeting From?</h1>
+		    <div class="row-fluid">
+			<div class="span2">
+			    <div>
+				<h3>City Region Ranking</h3>
+			    </div>
+			    <ol>
+				<h4>Winner: {{names[0]}}</h4>
+				    {% for i in range(names|count) %}
+				    <li><h5>{{names[i]}}</h5></li>
+				    {% endfor %}
+			    </ol>
+			</div>
+			<div class="span2">
+			    <h3>Top 5 Words Classifying the Tweet as {{names[0]}}</h3>
+			    <ol> {% for word in top_5_words %}
+				<li>
+				<h4>{{word}}</h4>
+				</li>
+			   	{% endfor %}
+			    </ol>
+			</div>
+			<div class="span8">
+			    <div>
+				<iframe width="800" height="600" scrolling="no" frameborder="no" src="https://www.google.com/fusiontables/embedviz?viz=MAP&amp;q=select+col4+from+1WreWHHlHan4yhwuo6mr33pQXUX5yu7mRj8s_sck&amp;h=false&amp;lat=39.760025045091375&amp;lng=-94.70590417625003&amp;z=4.5&amp;t=1&amp;l=col4&amp;y=2&amp;tmplt=2"></iframe>
+				<h2>Tweets Across the US Are Assigned to Major US Cities Ranked Highly Active On Twitter</h2>
+			    </div>	
+			</div>
+		    </div>
+		</div>
+	    </div>
+	</div>
+
     </body>
-	
+    
+
+
 </html>
-
-

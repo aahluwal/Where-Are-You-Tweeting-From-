@@ -3,14 +3,15 @@ from sqlalchemy import Column, Integer, String, DateTime, create_engine, Float
 from sqlalchemy.orm import sessionmaker, scoped_session
 from datetime import datetime 
 import os
+import json
 
 
 #db_uri = os.environ.get("DATABASE_URL", "postgresql://localhost/twitter")
-db_uri = os.environ.get("DATA_BASE_URL", "sqlite:///twitter.db")
+#db_uri = os.environ.get("DATA_BASE_URL", "sqlite:///twitter.db")
 engine = create_engine(db_uri, echo=False)
 session = scoped_session(sessionmaker(bind=engine,
 				      autocommit = False,
-  				      autoflush = False))
+				      autoflush = False))
 
 Base = declarative_base()
 Base.query = session.query_property
@@ -39,6 +40,8 @@ class Tweet(Base):
     def __str__(self):
 	return self.__repr__()
 
+    
+
     @classmethod  
     def create_from_dict(cls, dict):
         tweet = Tweet()
@@ -52,7 +55,16 @@ class Tweet(Base):
 	tweet.latitude = coordinate_list[1]
 	return tweet
 
+class Features(Base):
+    __tablename__ = 'features'
+    
+    id = Column(Integer, primary_key=True)
+    city_features = Column(String(2000), nullable=False)
+    city_name = Column(String(128), nullable=False) 
 
+    def list_of_features(self):
+	features = json.loads(self.city_features)
+	return features 
 
 class Los_Angeles():
     def __init__(self):
@@ -108,6 +120,12 @@ class Seattle():
 	self.lon= -122.33
 	self.lat=47.609
 	self.name='Seattle'
+
+class Boston():
+    def __init__(self):
+	self.lon = -71.0603
+	self.lat = 42.3583
+	self.name = 'Boston'
     
 def create_db():
     Base.metadata.create_all(engine)
