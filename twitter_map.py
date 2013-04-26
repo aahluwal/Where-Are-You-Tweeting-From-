@@ -1,7 +1,7 @@
 from flask import Flask, flash, render_template, redirect, request, session, url_for,g
-from model import session as db_session, Tweet
+#from model import session as db_session, Tweet
 from flask.ext.sqlalchemy import SQLAlchemy
-import model
+#import model
 import data
 from data import cities
 import os
@@ -9,7 +9,6 @@ import feature_selection
 
 app = Flask(__name__)
 app.config.from_object(__name__)
-#app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://localhost/twitter'
 app.secret_key = 'some_key'
 
 
@@ -24,11 +23,17 @@ def classify_text():
     tweet = request.form['tweet']
     rankings = data.create_ranking(tweet)
     top_5_words = feature_selection.top_words_in_tweet(rankings[0][0],tweet)
+    cty_corpus_dict = data.city_corpus_dict()
+    word_count_dict = cty_corpus_dict[rankings[0][0].name]
+    final_result = []
+    for word in top_5_words:
+	final_result.append(word)
+
     names = []
     for i in range(0, len(rankings)):
 	city_name = rankings[i][0].name
 	names.append(city_name)
-    return render_template("map.html", names=names, rankings=rankings, top_5_words=top_5_words)
+    return render_template("map.html", tweet=tweet, names=names, rankings=rankings, final_result=final_result)
 
 @app.route("/classify_text", methods=["GET"])
 def classify():

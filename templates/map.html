@@ -22,7 +22,8 @@
 	    </div>
 	    <div class="content" style="margin-top: 50px">
 		<form class="form-search" action="/classify_text" method="POST">
-		    <textarea name="tweet" rows="3" style="width:1200px;" placeholder='Type in a past tweet. The more of your past history you include, the more accurate this will be'.></textarea>
+		    <textarea name="tweet" rows="3" style="width:1200px;" placeholder='Type in a past tweet. The more of your past history you include, the more accurate this will be'.>{{tweet}}</textarea>
+
 		    <button type="submit" class="btn">Search</button>
 		</form>
 		<div class="container-fluid">
@@ -41,7 +42,7 @@
 			</div>
 			<div class="span2">
 			    <h3>Top 5 Words Classifying the Tweet as {{names[0]}}</h3>
-			    <ol> {% for word in top_5_words %}
+			    <ol> {% for word in final_result %}
 				<li>
 				<h4>{{word}}</h4>
 				</li>
