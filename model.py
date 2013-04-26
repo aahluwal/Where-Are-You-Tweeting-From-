@@ -23,6 +23,13 @@ class Container(db.Model):
     value = Column(String(2000000), nullable=False)
 
 
+class Word(db.Model):
+    __tablename__ = "words"
+    id = Column(Integer, primary_key = True) 
+    word = Column(String(128), nullable=False)
+    city = Column(String(64), nullable=False)
+    probability = Column(Float(precision=8), nullable=False)
+
 class Tweet(db.Model):
     __tablename__ = "tweets"
 

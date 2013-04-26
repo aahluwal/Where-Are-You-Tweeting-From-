@@ -70,8 +70,6 @@ def rank(city):
     city_corpus = data.city_corpus_dict()
     word_dict = city_corpus[city.name]
     feature_weight_list = []
-    print 'num words to check'
-    print len(word_dict.keys())
     count = 0
     for word in word_dict.keys():
 	wf = get_tweet_word_counts(word, city)

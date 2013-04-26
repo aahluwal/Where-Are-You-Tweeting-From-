@@ -1,4 +1,4 @@
-from model import Container, Tweet, Boston, San_Francisco, Los_Angeles, Houston, New_York, Atlanta, Chicago, Miami, Seattle
+from model import Word, Container, Tweet, Boston, San_Francisco, Los_Angeles, Houston, New_York, Atlanta, Chicago, Miami, Seattle
 from math import sqrt, log, sin, cos, radians, atan2
 from app import db
 import math
@@ -9,6 +9,8 @@ import haversine
 from operator import itemgetter 
 #from werkzeug.contrib.cache import MemcachedCache
 import json
+import datetime
+
 
 # Main Naiive Bayes classification equation derived from http://nlp.stanford.edu/IR-book/html/htmledition/naive-bayes-text-classification-1.html
 #This paper says that P(Document/Class) AKA P(Tweet/City) is relative to P(City)*P(Word1/CITY)*P(Word2/CITY)*...*P(Wordn/CITY). I calculate this for every City and rank 
@@ -136,7 +138,6 @@ def city_word_prob_dict():
 	n = {}
 	cty_corpus_dict = city_corpus_dict()
 	for city in cities:
-	    print city.name
 	    w_dic ={}
 	    word_dict = cty_corpus_dict[city.name]
 	    for word in word_dict.keys():
@@ -146,9 +147,22 @@ def city_word_prob_dict():
 	model.session.add(d)
 	model.session.commit()
     else:
-	print n.value
 	n = json.loads(n.value)
     return n
+
+
+
+#Seeds into words table, city, word, and prob(W/City)
+def cty_word_prob_dict():
+    cty_word_prob_dict = city_word_prob_dict()
+    for city in cities: 
+	word_prob_dict = cty_word_prob_dict[city.name]
+	for word in word_prob_dict.keys():
+	    n = Word(word = word, city = city.name, probability = prob_word_given_city(city, word))
+	    model.session.add(n)
+	    model.session.commit()
+
+
 
 
 
@@ -160,6 +174,7 @@ def city_corpus_dict():
     key = 'city_corpus_dict'
     n = session.query(Container).filter(Container.key==key).first()
     if not n:
+	print 'Couldn\'t get city corpus dict from database'
 	tweet_to_city_dict = map_cities_to_tweets()
 	n = {}
 	for city in cities:
@@ -182,12 +197,21 @@ def city_corpus_dict():
 
 #Returns total count of all words in a city
 def create_city_word_count(city):
-    container = city_corpus_dict()
-    word_count_dict = container[city.name] 
-    words = word_count_dict.keys()
-    total_count = 0.0
-    for word in words:
-	total_count += word_count_dict[word] 
+    key = 'city_word_count_%s' % city.name
+    city_word_count_container = session.query(Container).filter(Container.key==key).first()
+    if not city_word_count_container:
+	print 'Recomputed city word count for : %s' % city.name
+	container = city_corpus_dict()
+	word_count_dict = container[city.name] 
+	words = word_count_dict.keys()
+	total_count = 0.0
+	for word in words:
+	    total_count += word_count_dict[word] 
+	city_word_count_container = Container(key=key, value=json.dumps(total_count))
+	session.add(city_word_count_container)
+	session.commit()
+    else:
+	total_count = json.loads(city_word_count_container.value)
     return float(total_count) 
 
 #Returns total word count for all cities combined
@@ -248,9 +272,19 @@ def prob_word_given_city(city, word):
 
 #Finds number of unique word entries in a city corpus 
 def find_leng_city_corpus(city):
-    cty_corpus_dict = city_corpus_dict()
-    dic = cty_corpus_dict[city.name]
-    leng_city_corpus = len(dic.keys())
+    key = 'city_corpus_length_%s' % city.name
+    corpus_length_container = session.query(Container).filter(Container.key==key).first()
+    if not corpus_length_container:
+
+	print 'Recomputing city_corpus_length'
+	cty_corpus_dict = city_corpus_dict()
+	dic = cty_corpus_dict[city.name]
+	leng_city_corpus = len(dic.keys())
+	corpus_length_container = Container(key=key, value=json.dumps(leng_city_corpus))
+	session.add(corpus_length_container)
+	session.commit()
+    else:
+	leng_city_corpus = json.loads(corpus_length_container.value)
     return float(leng_city_corpus)
 
 #Finds number of unique word entries in total
@@ -320,21 +354,29 @@ def find_count_of_word_total(word):
 #CHANGED to log(P(City)+log(P(w1/City)+log(P(w2/City))...
 
 def prob_tweet_from_city(city,tweet_string):
-    stop_words = ['could', 'would', 'will', 'at', 'should', 'can', 'we', 'us', 'as','at', 'him','to','sometimes', 'you', 'were', 'i', 'my', 'her', 'he','me', 'this', 'was', 'all', 'the', 'but', 'or', 'and','there', 'it', 'is', 'then', 'a', 'an', 'be', 'for', 'of', 'what', 'when', 'why', 'where', 'are', 'am', 'because', 'they','she', 'he']
-    
+    total_start = datetime.datetime.now()
+    stop_words = {'in':1, 'how':1,'his':1, 'took':1, 'could':1, 'would':1, 'will':1, 'at':1, 'should':1, 'can':1, 'we':1, 'us':1, 'as':1,'at':1, 'him':1,'to':1,'sometimes':1, 'you':1, 'were':1, 'i':1, 'my':1, 'her':1, 'he':1,'me':1, 'this':1, 'was':1, 'had':1,'all':1, 'the':1, 'but':1, 'or':1, 'and':1,'there':1, 'it':1, 'is':1, 'then':1, 'a':1, 'an':1, 'be':1, 'for':1, 'of':1, 'what':1, 'when':1, 'why':1, 'where':1, 'are':1, 'am':1, 'because':1, 'they':1,'she':1, 'he':1}
     x = 0
+    num_queries = 0
+    total_time = datetime.timedelta()
     tweet_words = tweet_string.encode("utf-8").lower().translate(string.maketrans("",""),string.punctuation).split()
     for word in tweet_words:
 	if word not in stop_words:
-	    cty_word_prob_dict = city_word_prob_dict()
-	    
-	    word_prob_dict = cty_word_prob_dict[city.name]
-	    prob_w_given_c = word_prob_dict.get(word)
-	    
-	    if not prob_w_given_c:
+	    num_queries += 1
+	    start = datetime.datetime.now()
+	    word_instance  = session.query(Word).filter(Word.word==word).filter( Word.city==city.name).first()
+	    end = datetime.datetime.now()
+	    time = (end - start)
+	    total_time += time
+	    if not word_instance:
 		prob_w_given_c = prob_word_given_city(city, word)
+	    else:
+		prob_w_given_c = word_instance.probability
 	    x += math.log(prob_w_given_c)
-    prob_city_given_tweet_relative_to = math.log(prob_city_overall(city)) + x 
+    prob_city_given_tweet_relative_to = math.log(prob_city_overall(city)) + x
+    total_end = datetime.datetime.now()
+    print 'It took %s to run %s queries' % (total_time, num_queries)
+    print 'It took %s to calculate %s' % ((total_end - total_start), city.name)
     return float(prob_city_given_tweet_relative_to)
 
 #Creates a list of city, probability-tweet-from-city pairs. Relative probabilities for each city
@@ -343,7 +385,6 @@ def create_list_of_probs(tweet_string):
     for city in cities:
 	tu = (city, prob_tweet_from_city(city, tweet_string))
 	new_list.append(tu)
-    print new_list
     return new_list
 
 #Sorts list of tuples (city, probability-tweet-from-city) by probability in descending order
@@ -354,6 +395,7 @@ def create_ranking(tweet_string):
     return x
 
 def main():
-    pass
+    cty_word_prob_dict()
+
 if __name__ == "__main__":
     main()

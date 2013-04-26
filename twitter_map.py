@@ -3,6 +3,7 @@ from flask import Flask, flash, render_template, redirect, request, session, url
 from flask.ext.sqlalchemy import SQLAlchemy
 #import model
 import data
+import datetime
 from data import cities
 import os
 import feature_selection
@@ -21,10 +22,25 @@ def index():
 @app.route("/classify_text", methods=["POST"])
 def classify_text():
     tweet = request.form['tweet']
+
+    start = datetime.datetime.now()
     rankings = data.create_ranking(tweet)
+    end = datetime.datetime.now()
+    print 'getting city rankings takes: %s' % (end - start)
+    
+
+    start = datetime.datetime.now()
     top_5_words = feature_selection.top_words_in_tweet(rankings[0][0],tweet)
+    end = datetime.datetime.now()
+    print 'getting top 5 words takes: %s' % (end - start)
+   
+    start = datetime.datetime.now()
     cty_corpus_dict = data.city_corpus_dict()
     word_count_dict = cty_corpus_dict[rankings[0][0].name]
+    end = datetime.datetime.now()
+    print 'getting bogus word count dict takes: %s' % (end - start)
+
+    start = datetime.datetime.now()
     final_result = []
     for word in top_5_words:
 	final_result.append(word)
@@ -33,6 +49,8 @@ def classify_text():
     for i in range(0, len(rankings)):
 	city_name = rankings[i][0].name
 	names.append(city_name)
+    end = datetime.datetime.now()
+    print 'generating lists takes: %s' % (end - start)
     return render_template("map.html", tweet=tweet, names=names, rankings=rankings, final_result=final_result)
 
 @app.route("/classify_text", methods=["GET"])
