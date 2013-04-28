@@ -7,7 +7,8 @@ import string
 import operator
 import haversine
 from operator import itemgetter 
-#from werkzeug.contrib.cache import MemcachedCache
+from werkzeug.contrib.cache import MemcachedCache
+cache = MemcachedCache(['127.0.0.1:11211'])
 import json
 import datetime
 
@@ -15,7 +16,6 @@ import datetime
 # Main Naiive Bayes classification equation derived from http://nlp.stanford.edu/IR-book/html/htmledition/naive-bayes-text-classification-1.html
 #This paper says that P(Document/Class) AKA P(Tweet/City) is relative to P(City)*P(Word1/CITY)*P(Word2/CITY)*...*P(Wordn/CITY). I calculate this for every City and rank 
 #the cities to see which city a tweet most likely came from
-#cache = MemcachedCache(['127.0.0.1:11211'])
 
 #global instances of each city
 los_angeles = Los_Angeles()
@@ -41,7 +41,7 @@ def distanceIsWithinHundredMiles(lon1,lat1,lon2,lat2):
 	return False 
 
 
-#Returns list of US tweets
+#Returns list of US tweets- Note: To increase speed I have placed indexes on longitude and latitude in tweets table using Postgresql.
 ALL_TWEETS = []
 def get_tweet_list():
     global ALL_TWEETS
@@ -57,6 +57,7 @@ def get_tweet_list():
 	    list_of_tweets.append(tweet)
 
     ALL_TWEETS = list_of_tweets
+    print "updating tweet list from db"
     return ALL_TWEETS
 
 
@@ -95,8 +96,8 @@ def map_cities_to_tweets():
 	else:
 	    previous = tweet_to_city_dict[city_name]
 	    tweet_to_city_dict[city_name] = tweet_to_city_dict[city_name] + [tweet] 
-
     CITY_TWEET_MAP = tweet_to_city_dict
+    print "updating new city_tweet_map from db" 
     return CITY_TWEET_MAP
 
 #Seeds into db dictionary inside dictionary, maps city names to key-value pair of word to # of tweets in city that word occurs in.
@@ -104,7 +105,6 @@ def city_tweet_corpus_dict():
     key = 'city_tweet_corpus_dict'
     n = session.query(Container).filter(Container.key==key).first()
     if not n:
-
 	n={}
 	tweet_to_city_dict = map_cities_to_tweets()
 	for city in cities:
@@ -133,8 +133,6 @@ def city_word_prob_dict():
     key = 'city_word_prob_dict'
     n  = session.query(Container).filter(Container.key== key).first()
     if not n:
-
-		
 	n = {}
 	cty_corpus_dict = city_corpus_dict()
 	for city in cities:
@@ -151,9 +149,8 @@ def city_word_prob_dict():
     return n
 
 
-
-#Seeds into words table, city, word, and prob(W/City)
-def cty_word_prob_dict():
+#Calls above function. Seeds into words table, city, word, and prob(W/City)
+def seed_words_table():
     cty_word_prob_dict = city_word_prob_dict()
     for city in cities: 
 	word_prob_dict = cty_word_prob_dict[city.name]
@@ -161,8 +158,6 @@ def cty_word_prob_dict():
 	    n = Word(word = word, city = city.name, probability = prob_word_given_city(city, word))
 	    model.session.add(n)
 	    model.session.commit()
-
-
 
 
 
@@ -195,24 +190,20 @@ def city_corpus_dict():
 	n = json.loads(n.value)
     return n
 
-#Returns total count of all words in a city
+#Memcaches key:city to value:total word count in city. Good use of Memcached because total word count of city stays constant for every call of function P(W/city) 
 def create_city_word_count(city):
-    key = 'city_word_count_%s' % city.name
-    city_word_count_container = session.query(Container).filter(Container.key==key).first()
-    if not city_word_count_container:
-	print 'Recomputed city word count for : %s' % city.name
+    key = city.name.replace(" ", "_")
+    total_city_count = cache.get(key)
+    if total_city_count is None:
+	print "Missed the cache tota_city_count: %s" %  key
 	container = city_corpus_dict()
 	word_count_dict = container[city.name] 
 	words = word_count_dict.keys()
-	total_count = 0.0
+	total_city_count = 0.0
 	for word in words:
-	    total_count += word_count_dict[word] 
-	city_word_count_container = Container(key=key, value=json.dumps(total_count))
-	session.add(city_word_count_container)
-	session.commit()
-    else:
-	total_count = json.loads(city_word_count_container.value)
-    return float(total_count) 
+	    total_city_count += word_count_dict[word] 
+	cache.set(key, total_city_count, timeout=5*60)
+    return total_city_count 
 
 #Returns total word count for all cities combined
 def create_total_word_count():
@@ -270,22 +261,17 @@ def prob_word_given_city(city, word):
     prob_w_given_c = (number_times_word_in_city +1.0)/(count_city_word_total + leng_city_corpus)
     return float(prob_w_given_c)
 
-#Finds number of unique word entries in a city corpus 
+#Memcaches number of unique word entries in a city corpus 
 def find_leng_city_corpus(city):
-    key = 'city_corpus_length_%s' % city.name
-    corpus_length_container = session.query(Container).filter(Container.key==key).first()
-    if not corpus_length_container:
-
-	print 'Recomputing city_corpus_length'
+    key = 'city_corpus_length' + city.name.replace(" ", "_")
+    city_corpus_length = cache.get(key)
+    if not city_corpus_length:
+	print 'Missed the cache Recomputing city_corpus_length'
 	cty_corpus_dict = city_corpus_dict()
 	dic = cty_corpus_dict[city.name]
-	leng_city_corpus = len(dic.keys())
-	corpus_length_container = Container(key=key, value=json.dumps(leng_city_corpus))
-	session.add(corpus_length_container)
-	session.commit()
-    else:
-	leng_city_corpus = json.loads(corpus_length_container.value)
-    return float(leng_city_corpus)
+	city_corpus_length = len(dic.keys())
+	cache.set(key, city_corpus_length, timeout=5*60)
+    return city_corpus_length
 
 #Finds number of unique word entries in total
 def find_leng_total_corpus():
@@ -309,12 +295,22 @@ def prob_city_overall(city):
 #    p = float(1.0 - prob_city_overall(city))
 #    return float(p) 
 
-#Finds number of times a word occurs in a city's corpus
+#Memcaches number of times a word occurs in a city's corpus 
 def find_count_of_word_in_city(city, word):
+    #key = word+city.name.replace(" ", "_")
+    #count_of_word = cache.get(key)
+    #if not count_of_word:
+#	print "Missed the cache of count_of_word: %s" % key
     cty_corpus_dict = city_corpus_dict()
-    dic = cty_corpus_dict[city.name] 
-    count = dic.get(word, 0)
-    return float(count)
+    dic = cty_corpus_dict[city.name]
+    count_of_word = dic.get(word, 0)
+#	count_of_word = dic.get(word, 0)
+#	try:
+#	    cache.set(key, count_of_word, timeout=5*60)
+#	except Exception:
+#	    pass
+    return float(count_of_word) 
+
 
 #Find number of times a word occurs total
 def find_count_of_word_total(word):
@@ -395,7 +391,6 @@ def create_ranking(tweet_string):
     return x
 
 def main():
-    cty_word_prob_dict()
-
+    pass
 if __name__ == "__main__":
     main()

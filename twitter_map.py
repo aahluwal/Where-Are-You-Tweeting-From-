@@ -19,6 +19,10 @@ def index():
     tweet_city_dict = data.map_cities_to_tweets()
     return render_template("home.html", tweet_city_dict=tweet_city_dict)
 
+@app.route("/about_project")
+def project_page():
+    return render_template("about_project.html")
+
 @app.route("/classify_text", methods=["POST"])
 def classify_text():
     tweet = request.form['tweet']
@@ -77,6 +81,10 @@ def list_features(city_name):
 	city_tweet_count = data.create_region_tweet_count(city)
 	city_word_count = data.find_leng_city_corpus(city)
     return render_template("city_words.html", features= feature_list, city_name=city_name, latitude=latitude, longitude=longitude, city_tweet_count=city_tweet_count, city_word_count=city_word_count)
+
+@app.route("/part1/gathering_tweets")
+def gathering_tweets_tutorial():
+    return render_template("gathering_tweets_tutorial.html")
 
 
 if __name__ == "__main__":

@@ -31,7 +31,7 @@ def main():
 	for city in city_to_tweet_dict.keys():
 	    tweet_list = city_to_tweet_dict[city]
 	    for tweet in tweet_list:
-		another_row = [city_to_color_map[city.name], city.name, tweet.screename, tweet.text.encode("utf").lower().translate(string.maketrans("",""),string.punctuation), tweet.latitude, tweet.longitude, tweet.created_at]
+		another_row = [city_to_color_map[city], city, tweet.screename, tweet.text.encode("utf").lower().translate(string.maketrans("",""),string.punctuation), tweet.latitude, tweet.longitude, tweet.created_at]
 		fusion_table_writer.writerow(another_row)
 
 									
