@@ -25,22 +25,17 @@
 		<div class="container-fluid">
 		    <h1>Where Are You Tweeting From?</h1>
 		    <div class="row-fluid">
-			<div class="span2">
-			    <div>
-				<h3>City Regions</h3>
-			    </div>
-			    <ul>
-				{% for city in cities %}
-				<li>
-				<a href="/city/{{city.name}}"><h4> {{city.name }}</h4></a>
-				</li>
-				{% endfor %}
+			<div class="span2 bs-docs-sidebar">
+			    <ul class="nav nav-list bs-docs-sidenav">
+				    <li><a href="/part1/gathering_tweets">Part 1: Gathering Data Using Twitter Streaming API</a></li>
+				    <li><a href="/part2/data_visualization">Part 2: Visualizing Tweets Using Google Maps V3 Fusion Table</a></li>
+				    <li><a href="/part3/text_classification">Part 3: Implementing Naiive Bayes Text Classifier</a></li>
+				    <li><a href="/part4/feature_selection">Part 4: Mutual Information to Select Top 30 Words in City</a></li>
 			    </ul>
 			</div>
 			<div class="span10">
 			    <div id="project">
-				<iframe width="800" height="600" scrolling="no" frameborder="no" src="https://www.google.com/fusiontables/embedviz?viz=MAP&amp;q=select+col4+from+1FNkK0cKm6in_ddkn8yVD5yKYktE4mqNtqOMjm9g&amp;h=false&amp;lat=39.760021559305506&amp;lng=-94.7059015703125002&amp;z=4.5&amp;t=1&amp;l=col4&amp;y=2&amp;tmplt=2"></iframe>
-				<h2>Tweets Across the US Are Assigned to Major US Cities Ranked Highly Active On Twitter</h2>
+				<h4> I have gathered 8730 tweets in total (between the dates of April 6th-April 26th 2013) within 150 miles of 9 major cities in America in hopes to find discover unique regional text patterns. I will be walking you through what I have done in hopes that it can be recreated and perhaps even perfected by another curious soul. You can find the complete source code on Github under the name "aaahluwal". Happy coding!</h4>
 			    </div>	
 			</div>
 		    </div>
