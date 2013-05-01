@@ -128,36 +128,14 @@ def city_tweet_corpus_dict():
 	n = json.loads(n.value)
     return n 
 
-#Seeds into db dictionary inside dictionary, maps city names to key-value pair of word to probablity of word given city. 
-def city_word_prob_dict():
-    key = 'city_word_prob_dict'
-    n  = session.query(Container).filter(Container.key== key).first()
-    if not n:
-	n = {}
-	cty_corpus_dict = city_corpus_dict()
-	for city in cities:
-	    w_dic ={}
-	    word_dict = cty_corpus_dict[city.name]
-	    for word in word_dict.keys():
-		w_dic[word] = prob_word_given_city(city,word)
-	    n[city.name] = w_dic
-	d = Container(key = key, value = json.dumps(n))
-	model.session.add(d)
-	model.session.commit()
-    else:
-	n = json.loads(n.value)
-    return n
 
-
-#Calls above function. Seeds into words table, city, word, and prob(W/City)
+#Seeds into words table, city, word, and prob(W/City)
 def seed_words_table():
-    cty_word_prob_dict = city_word_prob_dict()
-    for city in cities: 
-	word_prob_dict = cty_word_prob_dict[city.name]
-	for word in word_prob_dict.keys():
-	    n = Word(word = word, city = city.name, probability = prob_word_given_city(city, word))
-	    model.session.add(n)
-	    model.session.commit()
+    uniques = total_corpus_list()
+    for word in uniques:
+	n = Word(word = word, city = city.name, probability = prob_word_given_city(city, word))
+	model.session.add(n)
+	model.session.commit()
 
 
 
@@ -194,6 +172,7 @@ def city_corpus_dict():
 def create_city_word_count(city):
     key = city.name.replace(" ", "_")
     total_city_count = cache.get(key)
+    print "did not miss memcache for city_word_count"
     if total_city_count is None:
 	print "Missed the cache tota_city_count: %s" %  key
 	container = city_corpus_dict()
@@ -257,8 +236,8 @@ def prob_word_given_city(city, word):
      
     number_times_word_in_city = find_count_of_word_in_city(city,word)
     count_city_word_total = create_city_word_count(city)
-    leng_city_corpus = find_leng_city_corpus(city)
-    prob_w_given_c = (number_times_word_in_city +1.0)/(count_city_word_total + leng_city_corpus)
+    leng_total_corpus = find_leng_total_corpus()
+    prob_w_given_c = (number_times_word_in_city +1.0)/(count_city_word_total + leng_total_corpus)
     return float(prob_w_given_c)
 
 #Memcaches number of unique word entries in a city corpus 
@@ -273,15 +252,31 @@ def find_leng_city_corpus(city):
 	cache.set(key, city_corpus_length, timeout=5*60)
     return city_corpus_length
 
-#Finds number of unique word entries in total
-def find_leng_total_corpus():
+#Returns list of unique word entries in entire corpus
+def total_corpus_list():
     length = 0.0
     uniques = set()
     cty_corpus_dict = city_corpus_dict()
     for city in cities:
 	dic = cty_corpus_dict[city.name]
 	uniques |= set(dic.keys())
-    return float(len(uniques))
+    uniques = list(uniques)
+    return uniques
+
+
+#Memcaches number of unique word entries in total
+def find_leng_total_corpus():
+    key = 'total_corpus_length'
+    total_corpus_length = cache.get(key)
+    if not total_corpus_length:
+	length = 0.0
+	uniques = set()
+	cty_corpus_dict = city_corpus_dict()
+	for city in cities:
+	    dic = cty_corpus_dict[city.name]
+	    uniques |= set(dic.keys())
+	cache.set(key, total_corpus_length, timeout=5*60)
+    return len(uniques)
 	    
 #P(City)- We will assume that the likelihood correlates to how well represented the city is in the whole sample size
 def prob_city_overall(city):
@@ -351,7 +346,7 @@ def find_count_of_word_total(word):
 
 def prob_tweet_from_city(city,tweet_string):
     total_start = datetime.datetime.now()
-    stop_words = {'in':1, 'how':1,'his':1, 'took':1, 'could':1, 'would':1, 'will':1, 'at':1, 'should':1, 'can':1, 'we':1, 'us':1, 'as':1,'at':1, 'him':1,'to':1,'sometimes':1, 'you':1, 'were':1, 'i':1, 'my':1, 'her':1, 'he':1,'me':1, 'this':1, 'was':1, 'had':1,'all':1, 'the':1, 'but':1, 'or':1, 'and':1,'there':1, 'it':1, 'is':1, 'then':1, 'a':1, 'an':1, 'be':1, 'for':1, 'of':1, 'what':1, 'when':1, 'why':1, 'where':1, 'are':1, 'am':1, 'because':1, 'they':1,'she':1, 'he':1}
+    stop_words = {'in':1,'it':1, 'every':1,'got':1, 'where':1,'maybe':1, 'came':1, 'along':1,'got':1, 'did':1,'every':1, 'how':1,'his':1, 'took':1, 'could':1, 'would':1, 'will':1, 'at':1, 'should':1, 'can':1, 'we':1, 'us':1, 'as':1,'at':1, 'him':1,'to':1,'sometimes':1, 'you':1, 'were':1, 'i':1, 'my':1, 'her':1, 'he':1,'me':1, 'this':1, 'was':1, 'had':1,'all':1, 'the':1, 'but':1, 'or':1, 'and':1,'there':1, 'it':1, 'is':1, 'then':1, 'a':1, 'an':1, 'be':1, 'for':1, 'of':1, 'what':1, 'when':1, 'why':1, 'where':1, 'are':1, 'am':1, 'because':1, 'they':1,'she':1, 'he':1}
     x = 0
     num_queries = 0
     total_time = datetime.timedelta()
@@ -364,11 +359,9 @@ def prob_tweet_from_city(city,tweet_string):
 	    end = datetime.datetime.now()
 	    time = (end - start)
 	    total_time += time
-	    if not word_instance:
-		prob_w_given_c = prob_word_given_city(city, word)
-	    else:
+	    if word_instance:
 		prob_w_given_c = word_instance.probability
-	    x += math.log(prob_w_given_c)
+		x += math.log(prob_w_given_c)
     prob_city_given_tweet_relative_to = math.log(prob_city_overall(city)) + x
     total_end = datetime.datetime.now()
     print 'It took %s to run %s queries' % (total_time, num_queries)

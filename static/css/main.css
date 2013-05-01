@@ -4,3 +4,13 @@
 #project{
     padding: 50px
 }
+.text-box{
+    margin-top: 20px
+}
+.city-names{
+    font-weight: bold;
+}
+.features{
+    font-weight: bold;
+    fontSize: 50px
+}

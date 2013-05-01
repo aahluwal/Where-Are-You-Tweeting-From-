@@ -17,7 +17,7 @@
 		    <a class="brand" href="/about_project">About Project</a>
 		    <ul class="nav">
 			<li><a href="/">Classify Text</a></li>
-			<li clss="active"><a href="/top_words">Top Words</a></li>
+			<li class="active"><a href="/top_words">Top Words</a></li>
 		    </ul>
 		</div>
 	    </div>
@@ -26,6 +26,8 @@
 		    <h1>Where Are You Tweeting From?</h1>
 		    <div class="row-fluid">
 			<div class="span2">
+			    <div>
+			    <div><h4>Click on a city region to get its top words</h4></div>
 			    <div>
 				<h3>City Regions</h3>
 			    </div>
@@ -37,10 +39,11 @@
 				{% endfor %}
 			    </ul>
 			</div>
+		    </div>
 			<div class="span10">
-			    <div id="project">
-				<iframe width="800" height="600" scrolling="no" frameborder="no" src="https://www.google.com/fusiontables/embedviz?viz=MAP&amp;q=select+col4+from+1FNkK0cKm6in_ddkn8yVD5yKYktE4mqNtqOMjm9g&amp;h=false&amp;lat=39.760021559305506&amp;lng=-94.7059015703125002&amp;z=4.5&amp;t=1&amp;l=col4&amp;y=2&amp;tmplt=2"></iframe>
+			    <div>
 				<h2>Tweets Across the US Are Assigned to Major US Cities Ranked Highly Active On Twitter</h2>
+				<iframe width="800" height="600" scrolling="no" frameborder="no" src="https://www.google.com/fusiontables/embedviz?viz=MAP&amp;q=select+col4+from+1FNkK0cKm6in_ddkn8yVD5yKYktE4mqNtqOMjm9g&amp;h=false&amp;lat=39.760021559305506&amp;lng=-94.7059015703125002&amp;z=4.5&amp;t=1&amp;l=col4&amp;y=2&amp;tmplt=2"></iframe>
 			    </div>	
 			</div>
 		    </div>

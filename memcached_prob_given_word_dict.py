@@ -11,8 +11,6 @@ from data import cities
 def main(): 
     
     data.city_corpus_dict()
-    #Creates city to word to prob(w/city) dict
-    data.city_word_prob_dict()
     #seeds words table with city, word, prob(w/city)
     data.seed_words_table()
     data.city_tweet_corpus_dict()

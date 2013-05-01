@@ -3,11 +3,12 @@
     <head>
 	<meta charset="utf-8">
 	<title>Where Are You Tweeting From?</title>
+	<link href="/static/css/main.css" rel="stylesheet">
 	<link href="/static/css/bootstrap.min.css" rel="stylesheet" media="screen">
 	<link href="/static/css/bootstrap-responsive.css" rel="stylesheet">
 	<link href="/static/css/docs.css" rel="stylesheet">
 	<link href="/static/js/google-code-prettify/prettify.css" rel="stylesheet">
-
+	
     </head>
     <body>
 	<div class="container">
@@ -20,11 +21,10 @@
 		    </ul>
 		</div>
 	    </div>
-	    <div class="content" style="margin-top: 50px">
+	    <div class="content">
 		<div class="container-fluid">
 		    <h1>Where Are You Tweeting From?</h1>
 		    <h2>30 Words that Define the {{city_name }} Region </h2>
-		    <h3> Sample Set of {{city_tweet_count}} Tweets and {{city_word_count}} Unique Words</h3>
 		    <div class="row-fluid">
 			<div class="span2">
 			    <ul>
@@ -36,9 +36,9 @@
 			    </ul>
 			</div>
 			<div class="span10">
-			    <div style="padding:50px">
+			    <div>
+				<h2> Sample Set of {{city_tweet_count}} Tweets and {{city_word_count}} Unique Words</h2>
 				<iframe width="800" height="600" scrolling="no" frameborder="no" src="https://www.google.com/fusiontables/embedviz?viz=MAP&amp;q=select+col4+from+1FNkK0cKm6in_ddkn8yVD5yKYktE4mqNtqOMjm9g&amp;h=false&amp;lat={{latitude}}&amp;lng={{longitude}}&amp;z=6.5&amp;t=1&amp;l=col4&amp;y=2&amp;tmplt=2"></iframe>
-				<h2>Tweets Across the US Are Assigned to Major US Cities Ranked Highly Active On Twitter</h2>
 			    </div>	
 			</div>
 		    </div>

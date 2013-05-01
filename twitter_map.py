@@ -3,6 +3,7 @@ from flask import Flask, flash, render_template, redirect, request, session, url
 from flask.ext.sqlalchemy import SQLAlchemy
 #import model
 import data
+import json
 import datetime
 from data import cities
 import os
@@ -34,7 +35,8 @@ def classify_text():
     
 
     start = datetime.datetime.now()
-    top_5_words = feature_selection.top_words_in_tweet(rankings[0][0],tweet)
+    included_features_dict = feature_selection.get_included_features_dict(tweet)
+   # = feature_selection.top_words_in_tweet(rankings[0][0],tweet)
     end = datetime.datetime.now()
     print 'getting top 5 words takes: %s' % (end - start)
    
@@ -45,17 +47,14 @@ def classify_text():
     print 'getting bogus word count dict takes: %s' % (end - start)
 
     start = datetime.datetime.now()
-    final_result = []
-    for word in top_5_words:
-	final_result.append(word)
-
     names = []
     for i in range(0, len(rankings)):
 	city_name = rankings[i][0].name
 	names.append(city_name)
     end = datetime.datetime.now()
     print 'generating lists takes: %s' % (end - start)
-    return render_template("map.html", tweet=tweet, names=names, rankings=rankings, final_result=final_result)
+    la_features = ['Beach', 'Frogurt', 'Coffee', 'Cuddling', 'Loonie', 'Item 6']
+    return render_template("map.html", tweet=tweet, names=names, included_features_dict=included_features_dict, rankings=rankings)
 
 @app.route("/classify_text", methods=["GET"])
 def classify():

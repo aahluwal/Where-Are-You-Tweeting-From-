@@ -7,6 +7,7 @@
 	<link href="/static/css/bootstrap-responsive.css" rel="stylesheet">
 	<link href="/static/css/docs.css" rel="stylesheet">
 	<link href="/static/js/google-code-prettify/prettify.css" rel="stylesheet">
+	<link href="/static/css/main.css" rel="stylesheet">
 
     </head>
     <body>
@@ -15,31 +16,27 @@
 		<div class="navbar-inner">
 		    <a class="brand" href="/about_project">About Project</a>
 		    <ul class="nav">
-			<li><a href="/">Classify Text</a></li>
+			<li class="active"><a href="/">Classify Text</a></li>
 			<li><a href="/top_words">Top Words</a></li>
 		    </ul>
 		</div>
 	    </div>
-	    <div class="content" style="margin-top: 50px">
-		<form class="form-search" action="/classify_text" method="POST">
-		    <textarea name="tweet" rows="3" style="width:1200px;" placeholder='Type in a past tweet. The more of your past history you include, the more accurate this will be'.></textarea>
-		    <button type="submit" class="btn">Search</button>
-		</form>
+	    <div class="content">
 		<div class="container-fluid">
 		    <h1>Where Are You Tweeting From?</h1>
 		    <div class="row-fluid">
-			<div class="span2">
-			    <div>
-				<h3>City Region Ranking</h3>
-			    </div>
+			<div class="span4">
+			    <div class="text-box">
+			    <form class="form-search" action="/classify_text" method="POST">
+				<textarea name="tweet" rows="10" style="width:300px;" placeholder='Type in a past tweet. The more of your past history you include, the more accurate this will be'.></textarea>
+				<button type="submit" class="btn">Search</button>
+			    </form>
 			</div>
-			<div class="span2">
-			    <h3>Top 5 Words Classifying the Tweet</h3>
 			</div>
 			<div class="span8">
 			    <div>
-				<iframe width="800" height="600" scrolling="no" frameborder="no" src="https://www.google.com/fusiontables/embedviz?viz=MAP&amp;q=select+col4+from+1FNkK0cKm6in_ddkn8yVD5yKYktE4mqNtqOMjm9g&amp;h=false&amp;lat=39.761001559305506&amp;lng=-94.7045703125002&amp;z=4.5&amp;t=1&amp;l=col4&amp;y=2&amp;tmplt=2"></iframe>	
 				<h2>Tweets Across the US Are Assigned to Major US Cities Ranked Highly Active On Twitter</h2>
+				<iframe width="800" height="600" scrolling="no" frameborder="no" src="https://www.google.com/fusiontables/embedviz?viz=MAP&amp;q=select+col4+from+1FNkK0cKm6in_ddkn8yVD5yKYktE4mqNtqOMjm9g&amp;h=false&amp;lat=39.761001559305506&amp;lng=-94.7045703125002&amp;z=4.5&amp;t=1&amp;l=col4&amp;y=2&amp;tmplt=2"></iframe>	
 			    </div>	
 			</div>
 		    </div>
