@@ -83,7 +83,7 @@ def rank(city):
     feature_word_list = [t[0] for t in feature_weight_list]
     stop_words = {'every':1, 'got':1,'through':1,'our':1,'especially':1,'about':1,'before':1, 'between':1, 'by':1, 'during':1, 'except':1, 'for':1, 'with':1, 'without':1,'in':1, 'how':1,'his':1, 'took':1, 'could':1, 'would':1, 'will':1, 'at':1, 'should':1, 'can':1, 'we':1, 'us':1, 'as':1,'at':1, 'him':1,'to':1,'sometimes':1, 'you':1, 'were':1, 'i':1, 'my':1, 'her':1, 'he':1,'me':1, 'this':1, 'was':1, 'had':1,'all':1, 'the':1, 'but':1, 'or':1, 'and':1,'there':1, 'it':1, 'is':1, 'then':1, 'a':1, 'an':1, 'be':1, 'for':1, 'of':1, 'what':1, 'when':1, 'why':1, 'where':1, 'are':1, 'am':1, 'because':1, 'they':1}
     for word in feature_word_list:
-	if word not in stop_words and len(winner_list)<100:
+	if word not in stop_words:
 	    winner_list.append(word)
     return winner_list 
 
@@ -105,7 +105,7 @@ def mutual_info_score(N11, N10, N01, N00):
 	first_log = 0
     return first_log + (N01/N) * math.log((N*N01)/(N0_dot*Ndot_1), 2) + third_log + (N00/N) * math.log((N*N00)/(N0_dot*Ndot_0), 2)
 
-#Returns list of user words that appear in city's top 100 features
+#Returns list of user words and their position in the ranked list of features features
 def get_city_included_features(city, tweet_string):
     tweet_words = tweet_string.encode("utf-8").lower().translate(string.maketrans("",""),string.punctuation).split()
     uniques = set(tweet_words)
@@ -114,10 +114,20 @@ def get_city_included_features(city, tweet_string):
     features = features.city_features
     features = json.loads(features)
     included_features = []
-    for feature in features:
+    for index, feature in enumerate(features):
 	if feature in tweet_words:
-	    included_features.append(feature.encode("utf-8"))
+	    included_features.append((feature.encode("utf-8"), index+1))
     return included_features
+
+def included_feature_strings(city, tweet_string):
+    features = get_city_included_features(city, tweet_string)
+    feature_strings = []
+    for feature in features:
+	word_feature = feature[0]  
+	feature_string = " is ranked number  ".join(['"%s"' % word_feature, str(feature[1])])
+	feature_strings.append(feature_string)
+    return feature_strings
+	
         
 #Returns dictionary of each city and their corresponding included_features list, given a tweet
 def get_included_features_dict(tweet_string):
@@ -128,9 +138,12 @@ def get_included_features_dict(tweet_string):
 
 
 def main():
-    g = get_included_features_dict("beach time in the city")
-    print g
-
+    m = get_tweet_word_counts("beach",miami)
+    print "miami is %s" % m
+    la = get_tweet_word_counts("beach", los_angeles)
+    print "la is %s" % la
+    ny = get_tweet_word_counts("beach", new_york)
+    print "ny is %s" % ny
 if __name__ == "__main__":
     main()
 

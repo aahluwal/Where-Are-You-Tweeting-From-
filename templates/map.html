@@ -25,9 +25,12 @@
 		    function() {
 			var $features = $('.features');
 			$features.empty();
-			var features = {{included_features_dict["Los Angeles"] | safe}};
+			var features = {{feature_strings_dict["Los Angeles"] | safe}};
 			$listElements = wordListToListElements(features);
 			$features.append($listElements);
+			var $featureCount = $('.featureCount');
+			var featureCount = {{city_corpus_leng_dict["Los Angeles"] | safe}};
+			$featureCount.text(featureCount + " Unique Words in Los Angeles");
 			$('.losAngeles').animate({
 			    fontSize: "20px"
 			});
@@ -36,6 +39,7 @@
 		    
 		    function() {
 			$('.features').empty();
+			$('.featureCount').empty();
 			$('.losAngeles').animate({
 			    fontSize: "15px"
 			});
@@ -49,15 +53,19 @@
 		    function() {
 			var $features = $('.features');
 			$features.empty();
-			var features = {{included_features_dict["New York"] | safe}};
+			var features = {{feature_strings_dict["New York"] | safe}};
 			$listElements = wordListToListElements(features);
 			$features.append($listElements);
+			var $featureCount = $('.featureCount');
+			var featureCount = {{city_corpus_leng_dict["New York"]| safe}};
+			$featureCount.text(featureCount + " Unique Words in New York");
 			$('.newYork').animate({
 			    fontSize: "20px"
 			});
 		    },
 		    function() {
 			$('.features').empty();
+			$('.featureCount').empty();
 			$('.newYork').animate({
 			    fontSize: "15px"
 			});
@@ -69,9 +77,12 @@
 		    function() {
 			var $features = $('.features');
 			$features.empty();
-			var features = {{included_features_dict["Miami"] | safe}};
+			var features = {{feature_strings_dict["Miami"] | safe}};
 			$listElements = wordListToListElements(features);
 			$features.append($listElements);
+			var $featureCount = $('.featureCount');
+			var featureCount = {{city_corpus_leng_dict["Miami"]|safe}};
+			$featureCount.text(featureCount+ " Unique Words in Miami");
 			$('.miami').animate({
 			    fontSize: "20px"
 			});
@@ -79,6 +90,7 @@
 
 		    function() {
 			$('.features').empty();
+			$('.featureCount').empty();
 			$('.miami').animate({
 			    fontSize: "15px"
 			});
@@ -90,15 +102,19 @@
 		    function() {
 			var $features = $('.features');
 			$features.empty();
-			var features = {{included_features_dict["Chicago"] | safe}};
+			var features = {{feature_strings_dict["Chicago"] | safe}};
 			$listElements = wordListToListElements(features);
 			$features.append($listElements);
+			var $featureCount = $('.featureCount');
+			var featureCount = {{city_corpus_leng_dict["Chicago"]|safe}};
+			$featureCount.text(featureCount+ " Unique Words in Chicago");
 			$('.chicago').animate({
 			    fontSize: "20px"
 			});
 		    },
 		    function() {
 			$('.features').empty();
+			$('.featureCount').empty();
 			$('.chicago').animate({
 			    fontSize: "15px"
 			});
@@ -110,15 +126,19 @@
 		    function() {
 			var $features = $('.features');
 			$features.empty();
-			var features = {{included_features_dict["Atlanta"] | safe}};
+			var features = {{feature_strings_dict["Atlanta"] | safe}};
 			$listElements = wordListToListElements(features);
 			$features.append($listElements);
+			var $featureCount = $('.featureCount');
+			var featureCount = {{city_corpus_leng_dict["Atlanta"]|safe}};
+			$featureCount.text(featureCount+ " Unique Words in Atlanta");
 			$('.atlanta').animate({
 			    fontSize: "20px"
 			});
 		    },
 		    function() {
 			$('.features').empty();
+			$('.featureCount').empty();
 			$('.atlanta').animate({
 			    fontSize: "15px"
 			});
@@ -129,15 +149,19 @@
 		    function() {
 			var $features = $('.features');
 			$features.empty();
-			var features = {{included_features_dict["San Francisco"] | safe}};
+			var features = {{feature_strings_dict["San Francisco"] | safe}};
 			$listElements = wordListToListElements(features);
 			$features.append($listElements);
+			var $featureCount = $('.featureCount');
+			var featureCount = {{city_corpus_leng_dict["San Francisco"]|safe}};
+			$featureCount.text(featureCount+ " Unique Words in San Francisco");
 			$('.sanFrancisco').animate({
 			    fontSize: "20px"
 			});
 		    },
 		    function() {
 			$('.features').empty();
+			$('.featureCount').empty();
 			$('.sanFrancisco').animate({
 			    fontSize: "15px"
 			});
@@ -149,15 +173,19 @@
 		    function() {
 			var $features = $('.features');
 			$features.empty();
-			var features = {{included_features_dict["Houston"] | safe}};
+			var features = {{feature_strings_dict["Houston"] | safe}};
 			$listElements = wordListToListElements(features);
 			$features.append($listElements);
+			var $featureCount = $('.featureCount');
+			var featureCount = {{city_corpus_leng_dict["Houston"]|safe}};
+			$featureCount.text(featureCount+ " Unique Words in Houston");
 			$('.houston').animate({
 			    fontSize:"20px"
 			});
 		    },
 		    function() {
 			$('.features').empty();
+			$('.featureCount').empty();
 			$('.houston').animate({
 			    fontSize: "15px"
 			});
@@ -168,15 +196,19 @@
 		    function() {
 			var $features = $('.features');
 			$features.empty();
-			var features = {{included_features_dict["Boston"] | safe}};
+			var features = {{feature_strings_dict["Boston"] | safe}};
 			$listElements = wordListToListElements(features);
 			$features.append($listElements);
+			var $featureCount = $('.featureCount');
+			var featureCount = {{city_corpus_leng_dict["Boston"]|safe}};
+			$featureCount.text(featureCount+ " Unique Words in Boston");
 			$('.boston').animate({
 			    fontSize: "20px"
 			});
 		    },
 		    function() {
 			$('.features').empty();
+			$('.featureCount').empty();
 			$('.boston').animate({
 			    fontSize: "15px"
 			});
@@ -187,15 +219,19 @@
 		    function() {
 			var $features = $('.features');
 			$features.empty();
-			var features = {{included_features_dict["Seattle"] | safe}};
+			var features = {{feature_strings_dict["Seattle"] | safe}};
 			$listElements = wordListToListElements(features);
 			$features.append($listElements);
+			var $featureCount = $('.featureCount');
+			var featureCount = {{city_corpus_leng_dict["Seattle"]|safe}};
+			$featureCount.text(featureCount+ " Unique Words in Seattle");
 			$('.seattle').animate({
 			    fontSize: "20px"
 		     });
 		    },
 		    function() {
 			$('.features').empty();
+			$('.featureCount').empty();
 			$('.seattle').animate({
 			    fontSize: "15px"
 			});
@@ -209,10 +245,11 @@
 	<div class="container">
 	    <div class="navbar navbar-inverse navbar-fixed-top">
 		<div class="navbar-inner">
-		    <a class="brand" href="/about_project">About Project</a>
+		    <a class="brand" href="/">Home</a>
 		    <ul class="nav">
-			<li class="active"><a href="/">Classify Text</a></li>
+			<li><a href="/about_project">About Project</a></li>
 			<li><a href="/top_words">Top Words</a></li>
+			<li class="active"><a href="/">Classify Text</a></li>
 		    </ul>
 		</div>
 	    </div>
@@ -223,13 +260,12 @@
 		    <button type="submit" class="btn">Search</button>
 		</form>
 		<div class="container-fluid">
-		    <h1>Where Are You Tweeting From?</h1>
+		    <span><h1>Where Are You Tweeting From?</h1><span class="winner"><h2>Winner: {{names[0]}}</h2></span></span>
+
 		    <div class="row-fluid">
 			<div class="span2">
 			    <div>
-				<h3>City Region Ranking</h3>
-				<br>
-				<div><span><h4>Winner:</h4></span><span><h3> {{names[0]}}</h3></span></div>
+				<h3>City Ranking</h3>
 			    </div>
 			    <ol class="city_names">
 				    {% for i in range(names|count) %}
@@ -266,14 +302,15 @@
 			</div>
 			<div class="span2">
 			    <div>
-				<span><h3>Hover over city on left.</h3></span>
+				<span><h4>Hover over city for key features</h4></span>
 				<br>
-				<span><h4>See what words from above tweet are important features in  what region(s)</h4></span>
+				
+				<h5 class="featureCount"> </h5>
 			    </div>
 			    <br>
-			    <ol class="features"> 
+			    <ul class="features"> 
 			
-			    </ol>
+			    </ul>
 			</div>
 			<div class="span8">
 			    <div>
