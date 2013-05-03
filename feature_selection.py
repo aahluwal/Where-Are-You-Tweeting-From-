@@ -119,6 +119,7 @@ def get_city_included_features(city, tweet_string):
 	    included_features.append((feature.encode("utf-8"), index+1))
     return included_features
 
+#called in Controller to display ranking for words in a user's tweet
 def included_feature_strings(city, tweet_string):
     features = get_city_included_features(city, tweet_string)
     feature_strings = []
