@@ -13,7 +13,6 @@ app = Flask(__name__)
 app.config.from_object(__name__)
 app.secret_key = 'some_key'
 app.config['DEBUG'] = True
-
 # Adding comment
 
 @app.route("/")
