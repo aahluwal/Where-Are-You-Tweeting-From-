@@ -9,10 +9,7 @@ WTForms==1.0.2
 Werkzeug==0.8.3
 decorator==3.4.0
 gunicorn==0.17.4
-numpy==1.8.0.dev-230db77
 psycopg2==2.5
 python-memcached==1.48
-scikit-learn==0.13.1
-scipy==0.13.0.dev-2bd1af0
 sqlalchemy-migrate==0.7.2
 wsgiref==0.1.2
