@@ -14,6 +14,7 @@ app.config.from_object(__name__)
 app.secret_key = 'some_key'
 
 
+# Adding comment
 
 @app.route("/")
 def index():
