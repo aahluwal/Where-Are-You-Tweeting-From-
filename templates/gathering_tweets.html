@@ -80,48 +80,6 @@
 <p class="p1"><i><span class="Apple-converted-space"> </span>               output['created_at'] = status.created_at.strftime('%Y-%m-%dT%H:%M:%S')</i></p>
 <p class="p1"><i><span class="Apple-converted-space"> </span>               outfile.write(json.dumps(output))</i></p>
 <p class="p2"><br></p>
-<p class="p1">In the above code, we are asserting that if an incoming tweet has a known geolocation- complete with its longitude and latitude coordinates, we can then proceed to output the tweet's screen_name, coordinates, text, and date/hour/min/sec of creation into a text file.  Note that we use the json.dumps function, which converts the tweet into json, so that we can store the dictionary structure of the tweet in a string form in the text file.   </p>
-<p class="p2"><br></p>
-<p class="p2"><br></p>
-<p class="p1">HIDDEN~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</p>
-<p class="p1">get_tweets.py file:</p>
-<p class="p2"><br></p>
-<p class="p1"><i>consumer_key="Q5LGEcvSRFHZq97EzU7FQ"</i></p>
-<p class="p1"><i>consumer_secret="sdZeJGtXHSgxN8ALs5xgpaTn2SSn4jxqqWjnHUPhn0"</i></p>
-<p class="p1"><i>access_key="1278869893-NRPD3OYMKJDdpYRqRiTpFMBhdKhXcxoDVc3Yj11"</i></p>
-<p class="p1"><i>access_secret="Bi43mEBzojlUHyKIG44JW8dhqRdLj0nM1Qquy4DOCPI"</i></p>
-<p class="p2"><br></p>
-<p class="p1"><i>auth = tweepy.OAuthHandler(consumer_key, consumer_secret)</i></p>
-<p class="p1"><i>auth.set_access_token(access_key, access_secret)</i></p>
-<p class="p1"><i>api = tweepy.API(auth)</i></p>
-<p class="p2"><br></p>
-<p class="p1"><i>class CustomStreamListener(tweepy.StreamListener):</i></p>
-<p class="p2"><br></p>
-<p class="p1"><i><span class="Apple-converted-space"> </span>   def __init__(self):</i></p>
-<p class="p1"><i><span class="Apple-converted-space"> </span>       super(CustomStreamListener, self).__init__()</i></p>
-<p class="p1"><i><span class="Apple-converted-space"> </span>       self.num_read = 0</i></p>
-<p class="p2"><br></p>
-<p class="p1"><i><span class="Apple-converted-space"> </span>   def on_status(self, status):</i></p>
-<p class="p1"><i><span class="Apple-converted-space"> </span>       if status.geo:</i></p>
-<p class="p1"><i><span class="Apple-converted-space"> </span>           with open('tweet_data_json_18.txt', 'a') as outfile:</i></p>
-<p class="p1"><i><span class="Apple-converted-space"> </span>               output = {}</i></p>
-<p class="p1"><i><span class="Apple-converted-space"> </span>               output['screen_name'] = status.author.screen_name</i></p>
-<p class="p1"><i><span class="Apple-converted-space"> </span>               output['coordinates'] = status.coordinates</i></p>
-<p class="p1"><i><span class="Apple-converted-space"> </span>               output['text'] = status.text</i></p>
-<p class="p1"><i><span class="Apple-converted-space"> </span>               output['created_at'] = status.created_at.strftime('%Y-%m-%dT%H:%M:%S')</i></p>
-<p class="p1"><i><span class="Apple-converted-space"> </span>               outfile.write(json.dumps(output))</i></p>
-<p class="p2"><br></p>
-<p class="p1"><i><span class="Apple-converted-space"> </span>       if self.num_read &gt; 14000:</i></p>
-<p class="p1"><i><span class="Apple-converted-space"> </span>           exit()</i></p>
-<p class="p1"><i><span class="Apple-converted-space"> </span>       self.num_read += 1</i></p>
-<p class="p2"><br></p>
-<p class="p1"><i><span class="Apple-converted-space"> </span>   def on_error(self, status_code):</i></p>
-<p class="p1"><i><span class="Apple-converted-space"> </span>       print &gt;&gt; sys.stderr, 'Encountered error with status code:', status_code</i></p>
-<p class="p1"><i><span class="Apple-converted-space"> </span>       return True # Don't kill the stream</i></p>
-<p class="p2"><br></p>
-<p class="p1"><i><span class="Apple-converted-space"> </span>   def on_timeout(self):</i></p>
-<p class="p1"><i><span class="Apple-converted-space"> </span>       print &gt;&gt; sys.stderr, 'Timeout...'</i></p>
-<p class="p1"><i><span class="Apple-converted-space"> </span>       return True # Don't kill the stream</i></p>
 <p class="p2"><br></p>
 <p class="p1"><i>sapi = tweepy.streaming.Stream(auth, CustomStreamListener())</i></p>
 <p class="p1"><i>sapi.sample()</i></p>
