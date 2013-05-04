@@ -1,0 +1,385 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="1187.37">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; line-height: 12.0px; font: 11.0px Arial}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Times; min-height: 14.0px}
+    p.p3 {margin: 0.0px 0.0px 0.0px 0.0px; line-height: 12.0px; font: 12.0px Times; min-height: 14.0px}
+    p.p4 {margin: 0.0px 0.0px 12.0px 12.0px; line-height: 13.0px; font: 12.0px Arial; background-color: #f7f7f7}
+    p.p5 {margin: 0.0px 0.0px 14.0px 0.0px; line-height: 16.0px; font: 12.0px Verdana; background-color: #ffffff}
+    span.s1 {font: 11.0px Arial; background-color: transparent}
+    span.s2 {font: 15.0px Verdana}
+    span.Apple-tab-span {white-space:pre}
+    table.t1 {border-collapse: collapse}
+    td.td1 {width: 66.0px; border-style: solid; border-width: 1.0px 1.0px 1.0px 1.0px; border-color: #cbcbcb #cbcbcb #cbcbcb #cbcbcb; padding: 0.0px 5.0px 0.0px 5.0px}
+    td.td2 {width: 345.0px; border-style: solid; border-width: 1.0px 1.0px 1.0px 1.0px; border-color: #cbcbcb #cbcbcb #cbcbcb #cbcbcb; padding: 0.0px 5.0px 0.0px 5.0px}
+    td.td3 {width: 346.0px; border-style: solid; border-width: 1.0px 1.0px 1.0px 1.0px; border-color: #cbcbcb #cbcbcb #cbcbcb #cbcbcb; padding: 0.0px 5.0px 0.0px 5.0px}
+    td.td4 {border-style: solid; border-width: 1.0px 1.0px 1.0px 1.0px; border-color: #cbcbcb #cbcbcb #cbcbcb #cbcbcb; padding: 0.0px 5.0px 0.0px 5.0px}
+  </style>
+</head>
+<body>
+<p class="p1">~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1"><b>Naiive Bayes Text Classification</b></p>
+<p class="p2"><br></p>
+<p class="p1">We want to use the known locations of the tweets in our sample set to predict where unknown tweets are coming from.  We also want to use the results to detect what patterns are exclusive to particular city regions.  For this, we'll use a Naiive Bayes Text Classifier, which we'll implement ourselves.  </p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1">Originally used for determining whether an email was spam or not, Naiive Bayes breaks down a document (in our case, a tweet) into token words and calculates the Probability of Word given some City.  </p>
+<p class="p2"><br></p>
+<p class="p1">One component of the Naiive Bayes classifier determines the probability of a certain class, given a particular word.  (In this case, they are determining the probability of class: Spam given a specific word-- which in their example is "replica". The official formula for this component of spam filtering is, as taken from Wiki:</p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1">We will break down each component of this formula and deduce what the meaning of each component was for spam classification, and what the equivalent result must be for our own city classification.<span class="Apple-converted-space"> </span></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<table cellspacing="0" cellpadding="0" class="t1">
+  <tbody>
+    <tr>
+      <td valign="middle" class="td1">
+        <p class="p1"><b>Component<span class="Apple-converted-space"> </span></b></p>
+      </td>
+      <td valign="middle" class="td2">
+        <p class="p1"><b>  Spam meaning<span class="Apple-tab-span">	</span></b></p>
+      </td>
+      <td valign="middle" class="td3">
+        <p class="p1"><b>City Tweet Classification<span class="Apple-tab-span">	</span></b></p>
+      </td>
+    </tr>
+    <tr>
+      <td valign="middle" class="td1">
+        <p class="p1"><b>Pr(S|W)-</b>        </p>
+      </td>
+      <td valign="middle" class="td2">
+        <p class="p1"> Probability of a document being spam, given that we have a particular word such as "replica"</p>
+        <p class="p2"><br></p>
+      </td>
+      <td valign="middle" class="td3">
+        <p class="p1">Prob of tweet being CityA, given that it includes a specific word "WordA"<span class="Apple-converted-space"> </span></p>
+      </td>
+    </tr>
+    <tr>
+      <td valign="middle" class="td1">
+        <p class="p1"><b>Pr(W|S)</b></p>
+      </td>
+      <td valign="middle" class="td2">
+        <p class="p1">Prob of encountering word "replica" given the spam subsample set of words    </p>
+      </td>
+      <td valign="middle" class="td3">
+        <p class="p1"> Prob of WordA given CityA's sample  set of words (made from tokenizing each tweet in CityA's sample set into words<span class="Apple-converted-space"> </span></p>
+      </td>
+    </tr>
+    <tr>
+      <td valign="middle" class="td1">
+        <p class="p1"><b>Pr(S)</b><span class="Apple-tab-span">	</span><span class="Apple-converted-space"> </span></p>
+      </td>
+      <td valign="middle" class="td2">
+        <p class="p1">Prob of spam in general<span class="Apple-tab-span">	</span></p>
+      </td>
+      <td valign="middle" class="td3">
+        <p class="p1">Prob of CityA in general. AKA The number of  tweets in CityA divided by #  of tweets in my total sample set</p>
+      </td>
+    </tr>
+    <tr>
+      <td valign="middle" class="td1">
+        <p class="p1"><b>Pr(W|H)</b><span class="Apple-converted-space"> </span></p>
+      </td>
+      <td valign="middle" class="td2">
+        <p class="p1">Prob of encountering word "replica" given  sample set of non spam documents   </p>
+      </td>
+      <td valign="middle" class="td3">
+        <p class="p1">Prob of WordA given all other cities' sample set of    words. Take total sample set  of tweets and subtract CityA sample set of tweets from it to determine sample set of all words not belonging <span class="Apple-tab-span">	</span>to CityA</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p class="p1"><b>  <span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span></b></p>
+<p class="p3"><br></p>
+<p class="p1"><span class="Apple-converted-space"> </span>                   <span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span>                                                                         </p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1"><b>Our code for this function will look something like this:</b></p>
+<p class="p2"><br></p>
+<p class="p1"><b><i>234 # P(W/City) = Number of times the word occurs in the city / total word count for the city. To do smoothing, then add 1 to the numerator and add len(corpus) to denominator.</i></b></p>
+<p class="p1"><i>235 def prob_word_given_city(city, word):</i></p>
+<p class="p1"><i>236<span class="Apple-converted-space"> </span></i></p>
+<p class="p1"><i>237     number_times_word_in_city = find_count_of_word_in_city(city,word)</i></p>
+<p class="p1"><i>238     count_city_word_total = create_city_word_count(city)</i></p>
+<p class="p1"><i>239     leng_total_corpus = find_leng_total_corpus()</i></p>
+<p class="p1"><i>240     prob_w_given_c = (number_times_word_in_city +1.0)/(count_city_word_total + leng_total_corpus)</i></p>
+<p class="p1"><i>241     return float(prob_w_given_c)</i></p>
+<p class="p1"><i>242<span class="Apple-converted-space"> </span></i></p>
+<p class="p2"><br></p>
+<p class="p1">Note that it relies on three helper functions to get the number of times a particular word occurs in a city, the number of words total in a city, and the number of unique words in a city.  These helper functions rely on my creation of a "city_corpus_dict" which maps city names to words to dictionaries of word to count of word in city.</p>
+<p class="p2"><br></p>
+<p class="p1">To make access to the city_corpus_dict faster, I create a new table in my db called Containers, where I will store the city_corpus_dict as a json string.<span class="Apple-converted-space"> </span></p>
+<p class="p2"><br></p>
+<p class="p1"><b><i>#Creates a dictionary inside dictionary, maps city name to key-value pairs of word in city to overall count of word occurrence in that city</i></b></p>
+<p class="p1"><i>def city_corpus_dict():</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   key = 'city_corpus_dict'</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   n = session.query(Container).filter(Container.key==key).first()</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   if not n:</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       print 'Couldn\'t get city corpus dict from database'</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       tweet_to_city_dict = map_cities_to_tweets()</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       n = {}</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       for city in cities:</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>           city_corpus_dict = {}</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>           for tweet in tweet_to_city_dict[city.name]:</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>               tweet_text = tweet.text.encode("utf-8").lower().translate(string.maketrans("",""),string.punctuation).split()</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>               for word in tweet_text:</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>                   if word not in city_corpus_dict:</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>                       city_corpus_dict[word]=1</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>                   else:</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>                       previous = city_corpus_dict[word]</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>                       city_corpus_dict[word] = previous+1</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>           n[city.name] = city_corpus_dict</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       d = Container(key=key, value=json.dumps(n))</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       model.session.add(d)</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       model.session.commit()</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   else:</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       n = json.loads(n.value)</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   return n</i></p>
+<p class="p2"><br></p>
+<p class="p1"><b><i>#Gets number of times a word occurs in a city's corpus<span class="Apple-converted-space"> </span></i></b></p>
+<p class="p1"><i>def find_count_of_word_in_city(city, word):</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   cty_corpus_dict = city_corpus_dict()</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   dic = cty_corpus_dict[city.name]</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   count_of_word = dic.get(word, 0)</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   return float(count_of_word)</i></p>
+<p class="p2"><br></p>
+<p class="p1"><b><i>#Memcaches key:city to value:total word count in city. Good use of Memcached because total word count of city stays constant for every call of function P(W/city)<span class="Apple-converted-space"> </span></i></b></p>
+<p class="p1"><i>def create_city_word_count(city):</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   key = city.name.replace(" ", "_")</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   total_city_count = cache.get(key)</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   if total_city_count is None:</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       container = city_corpus_dict()</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       word_count_dict = container[city.name]</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       words = word_count_dict.keys()</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       total_city_count = 0.0</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       for word in words:</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>           total_city_count += word_count_dict[word]</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       cache.set(key, total_city_count, timeout=5*60)</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   return total_city_count</i></p>
+<p class="p2"><br></p>
+<p class="p1"><b><i>#Memcaches number of unique word entries in total</i></b></p>
+<p class="p1"><i>def find_leng_total_corpus():</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   key = 'total_corpus_length'</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   total_corpus_length = cache.get(key)</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   if not total_corpus_length:</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       length = 0.0</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       uniques = set()</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       cty_corpus_dict = city_corpus_dict()</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       for city in cities:</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>           dic = cty_corpus_dict[city.name]</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>           uniques |= set(dic.keys())</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       cache.set(key, total_corpus_length, timeout=5*60)</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   return len(uniques)</i></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1"><b>Note</b>: I used memcache where it makes sense to store the components of P(W/C), to aid in faster calculation of the result.  Storing P(W/C) in the db guarantees that the values will be available. This is necessary since recreating the values would take too long for the user to have to wait, since memcached can only store values for 5 hours time.<span class="Apple-converted-space"> </span></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1">You'll notice that we are smoothing the formula in line 240 to account for if our sample set encounters a word we have not seen before.  In that case, we add the word to our sample set, and we add 1 to every other word in our sample set (which ends up being equal to adding the length of the total # of unique word entries in the sample set to our denominator)</p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1">Now realize, that we have the probability of a class, given one word.<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space"> </span>What Naiive Bayes does, is determine the probability of individual words in a document/tweet. The classifier assumes that the presence/absence of a particular word is independent of the presence/absence of any other word.  </p>
+<p class="p2"><br></p>
+<p class="p1">Naiive Bayes takes all individual probabilities for each word in the document/tweet and uses them to calculate the final Probability of a class/City given a document/tweet, made up of many words, using this formula from wiki:</p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1">where, in our twitter project:</p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1">component   </p>
+<p class="p1">p                            is the final probability of class/City given document/tweet</p>
+<p class="p2"><br></p>
+<p class="p1">p1                          is the Prob of the first word in the tweet given a class/city</p>
+<p class="p2"><br></p>
+<p class="p1">p2<span class="Apple-tab-span">	</span>                      is the Prob of the second word in the tweet given a class/city</p>
+<p class="p1">.</p>
+<p class="p1">.</p>
+<p class="p1">.</p>
+<p class="p1">pN                         is the Prob of the Nth word in the tweet given a class/city</p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1">We have a slight problem when bringing this formula to light in code however. It's possible that the probabilities we are working with are smaller than numbers a computer can actually store in memory.  To account for this, the above formula can be written like so<span class="Apple-converted-space"> </span></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1">where the n is:</p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1">Assuming you create the helper functions necessary to create the probability of word given a city, the code for the formula above looks like this:<span class="Apple-converted-space"> </span></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1"><i>#P(C/Tweet)</i></p>
+<p class="p1"><i>#new formula to deal with underflow</i></p>
+<p class="p1"><i>def prob_tweet_from_city(city,tweet_string):</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   tweet_words = tweet_string.encode("utf-8").lower().translate(string.maketrans("",""),string.punctuation).split()</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   probs= [prob_city_given_word(city,word) for word in tweet_words]</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   eta = sum([math.log(1.0-prob)-math.log(prob) for prob in probs])</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   total_prob = 1.0/(1.0 + math.exp(eta))</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   return total_prob</i></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space"> </span>If you're feeling a little lost, don't worry! I'm about to let you in on something that will simplify all this math-y stuff.</p>
+<p class="p2"><br></p>
+<p class="p1">The above way to calculate the Probability of a City given a tweet is completely legitimate, but there's another way.</p>
+<p class="p1">After some research, I found that if all I wanted to do was use the formula to rank the cities, then I could work with the Maximum Linear Estimate of the formula.  Don't be scared off by the phrase, but the MLE refers to the most reduced form of an equation that still yields the same outcome.</p>
+<p class="p2"><br></p>
+<p class="p1">In our case, the Probability of a City given a tweet is directly related to<span class="Apple-converted-space"> </span></p>
+<p class="p2"><br></p>
+<p class="p1"><i>Probability of City * Probability of W1/City * Probability of W2/City *… * Probability of WN/City</i></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1">That means that our Naiive Bayes Classifier can rely on only two components of the original equation, simplifying out code.  </p>
+<p class="p2"><br></p>
+<p class="p1">Now we know that if we receive a tweet from our user, we can apply the above formulate to the tweet for every city in the list of 9, and rank them according to which City has the highest Probability of City given a tweet.<span class="Apple-converted-space"> </span></p>
+<p class="p2"><br></p>
+<p class="p1"><i>347 def prob_tweet_from_city(city,tweet_string):</i></p>
+<p class="p1"><i>348     x = 0</i></p>
+<p class="p1"><i>349     tweet_words = tweet_string.encode("utf-8").lower().translate(string.maketrans("",""),string.punctuation).split()</i></p>
+<p class="p1"><i>350     for word in tweet_words:</i></p>
+<p class="p1"><i>351             prob_w_given_c = prob_word_given_city(city,word)</i></p>
+<p class="p1"><i>352             x += math.log(prob_w_given_c)</i></p>
+<p class="p1"><i>353     prob_city_given_tweet_relative_to = math.log(prob_city_overall(city)) + x</i></p>
+<p class="p1"><i>354     return float(prob_city_given_tweet_relative_to)</i></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1">So now that we have this function, we can apply it to every city in our list of cities, and rank the list according to descending order:<span class="Apple-converted-space"> </span></p>
+<p class="p2"><br></p>
+<p class="p1"><b><i>371 #Creates a list of city, probability-tweet-from-city pairs. Relative probabilities for each city</i></b></p>
+<p class="p1"><i>372 def create_list_of_probs(tweet_string):</i></p>
+<p class="p1"><i>373     new_list = []</i></p>
+<p class="p1"><i>374     for city in cities:</i></p>
+<p class="p1"><i>375         tu = (city, prob_tweet_from_city(city, tweet_string))</i></p>
+<p class="p1"><i>376         new_list.append(tu)</i></p>
+<p class="p1"><i>377     return new_list</i></p>
+<p class="p1"><i>378<span class="Apple-converted-space"> </span></i></p>
+<p class="p1"><b><i>379 #Sorts list of tuples (city, probability-tweet-from-city) by probability in descending order</i></b></p>
+<p class="p1"><i>380 def create_ranking(tweet_string):</i></p>
+<p class="p1"><i>381     probs = create_list_of_probs(tweet_string)</i></p>
+<p class="p1"><i>382     probs.sort(key=operator.itemgetter(1), reverse=True)</i></p>
+<p class="p1"><i>383     x = probs</i></p>
+<p class="p1"><i>384     return x</i></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1">In order to get a tweet from our user, and display our ranking on our web app, we must call this function in our controller.</p>
+<p class="p2"><br></p>
+<p class="p1"><i>@app.route("/classify_text", methods=["POST"])</i></p>
+<p class="p1"><i>def classify_text():</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   tweet = request.form['tweet']</i></p>
+<p class="p2"><br></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   rankings = data.create_ranking(tweet)</i></p>
+<p class="p1"><i>return render_template("map.html", tweet=tweet, rankings=rankings)<span class="Apple-converted-space"> </span></i></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1"><b>Note:</b> Because calculating the Prob(W/C) for each word can become timely, the larger your user input is, I came up with an alternative in creating a table in my db schema called Words in which I store City: Word: Prob(W/C).<span class="Apple-converted-space"> </span></p>
+<p class="p2"><br></p>
+<p class="p1">The schema, in my model.py looks like:</p>
+<p class="p2"><br></p>
+<p class="p1"><i>class Word(db.Model):</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   __tablename__ = "words"</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   id = Column(Integer, primary_key = True)</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   word = Column(String(500), nullable=False)</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   city = Column(String(64), nullable=False)</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   probability = Column(Float(precision=8), nullable=False)</i></p>
+<p class="p2"><br></p>
+<p class="p1">and the altered function for Probability of City Given Tweet AKA prob_tweet_from_city is:</p>
+<p class="p2"><br></p>
+<p class="p1"><i>347 def prob_tweet_from_city(city,tweet_string):</i></p>
+<p class="p1"><i>350     x = 0</i></p>
+<p class="p1"><i>353     tweet_words = tweet_string.encode("utf-8").lower().translate(string.maketrans("",""),string.punctuation).split()</i></p>
+<p class="p1"><i>354     for word in tweet_words:</i></p>
+<p class="p1"><i>358         word_instance  = session.query(Word).filter(Word.word==word).filter( Word.city==city.name).first()</i></p>
+<p class="p1"><i>362         if word_instance:</i></p>
+<p class="p1"><i>363             prob_w_given_c = word_instance.probability</i></p>
+<p class="p1"><i>364             x += math.log(prob_w_given_c)</i></p>
+<p class="p1"><i>365     prob_city_given_tweet_relative_to = math.log(prob_city_overall(city)) + x</i></p>
+<p class="p1"><i>369     return float(prob_city_given_tweet_relative_to)</i></p>
+<p class="p2"><br></p>
+<p class="p1"><b><i>Note:</i> I add indexes in PostGresql to the city and word columns of this table so aid in quick look up time.  I prefer indexing the tables in the db to storing the values in memcache<span class="Apple-converted-space"> </span></b></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1"><b>Documentation for adding indexes in Postgresql:</b></p>
+<p class="p4"><b>CREATE [ UNIQUE ] INDEX [ CONCURRENTLY ] <i>name</i> ON <i>table</i> [ USING <i>method</i> ]<br>
+<span class="Apple-converted-space"> </span>   ( { <i>column</i> | ( <i>expression</i> ) } [ <i>opclass</i> ] [, ...] )<br>
+<span class="Apple-converted-space"> </span>   [ WITH ( <i>storage_parameter</i> = <i>value</i> [, ... ] ) ]<br>
+<span class="Apple-converted-space"> </span>   [ TABLESPACE <i>tablespace</i> ]<br>
+<span class="Apple-converted-space"> </span>   [ WHERE <i>predicate</i> ]</b></p>
+<p class="p5"><span class="s1"><b>Ex. </b></span><b>To create a B-tree index (the default index) on the column </b><span class="s2"><b>word</b></span><b> in the table </b><span class="s2"><b>words</b></span><b>:</b></p>
+<p class="p4"><b>CREATE UNIQUE INDEX word_idx ON words (title);</b></p>
+<p class="p1"><b>Because I index word and city, in PGSQL I see, after issuing the command “\dt+ words;”</b></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1">twitter=# \d+ words;</p>
+<p class="p1"><span class="Apple-converted-space"> </span>                                               Table "public.words"</p>
+<p class="p1"><span class="Apple-converted-space"> </span>  Column    |          Type          |                     Modifiers                      | Storage  | Description<span class="Apple-converted-space"> </span></p>
+<p class="p1">-------------+------------------------+----------------------------------------------------+----------+-------------</p>
+<p class="p1"><span class="Apple-converted-space"> </span>id          | integer                | not null default nextval('words_id_seq'::regclass) | plain    |<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space"> </span>word        | character varying(128) | not null                                           | extended |<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space"> </span>city        | character varying(64)  | not null                                           | extended |<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space"> </span>probability | real                   | not null                                           | plain    |<span class="Apple-converted-space"> </span></p>
+<p class="p1"><b>Indexes:</b></p>
+<p class="p1"><span class="Apple-converted-space"> </span>   "words_pkey" PRIMARY KEY, btree (id)</p>
+<p class="p1"><b><span class="Apple-converted-space"> </span>   "city_idx" btree (city)</b></p>
+<p class="p1"><b><span class="Apple-converted-space"> </span>   "word_idx" btree (word)</b></p>
+<p class="p1"><b>Has OIDs: no</b></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<table cellspacing="0" cellpadding="0" class="t1">
+  <tbody>
+    <tr>
+      <td valign="middle" class="td4">
+        <p class="p2"><br></p>
+      </td>
+      <td valign="middle" class="td4">
+        <p class="p2"><br></p>
+      </td>
+      <td valign="middle" class="td4">
+        <p class="p2"><br></p>
+      </td>
+    </tr>
+    <tr>
+      <td valign="middle" class="td4">
+        <p class="p2"><br></p>
+      </td>
+      <td valign="middle" class="td4">
+        <p class="p2"><br></p>
+      </td>
+      <td valign="middle" class="td4">
+        <p class="p2"><br></p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p class="p2"><br></p>
+</body>
+</html>

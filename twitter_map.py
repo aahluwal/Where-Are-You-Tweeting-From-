@@ -87,7 +87,19 @@ def list_features(city_name):
 
 @app.route("/part1/gathering_tweets")
 def gathering_tweets_tutorial():
-    return render_template("gathering_tweets_tutorial.html")
+    return render_template("gathering_tweets.html")
+
+@app.route("/part2/data_visualization")
+def fusion_table_tutorial():
+    return render_template("google_maps.html")
+
+@app.route("/part3/text_classification")
+def classification_tutorial():
+    return render_template("naiive.html")
+
+@app.route("/part4/feature_selection")
+def mi_tutorial():
+    return render_template("mi1.html")
 
 
 if __name__ == "__main__":

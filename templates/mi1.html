@@ -1,0 +1,235 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="1187.37">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; line-height: 12.0px; font: 11.0px Arial}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Times; min-height: 14.0px}
+    p.p3 {margin: 0.0px 0.0px 0.0px 0.0px; font: 11.0px Arial}
+  </style>
+</head>
+<body>
+<p class="p1">Mutual Information to Select Features</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space"> </span>We will use MI to measure how much information the presence/absence of a feature/word contributes to making the correct city classification decision.  We will use this formula to find out what the most defining words of a particular city region are, exclusive to that region.<span class="Apple-converted-space"> </span></p>
+<p class="p1">Note: Don’t be confused by the term “feature”. In the context of this tutorial, it is interchangeable with “word”<span class="Apple-converted-space"> </span></p>
+<p class="p2"><br></p>
+<p class="p1">The formula for MI is:</p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1">Where: If we think of 1 as True, and 0 as False, and we know we are checking for a particular Word and a particular City:</p>
+<p class="p2"><br></p>
+<p class="p1">N11                      Refers to number of tweets containing Word, and in City                            Word: True  City: True  </p>
+<p class="p2"><br></p>
+<p class="p1">N10                      Refers to the number of tweets containing Word, and not in City                 Word: False  City: True</p>
+<p class="p2"><br></p>
+<p class="p1">N00                      Refers to number of tweets not containing the Word and not in City            Word: False  City: False</p>
+<p class="p2"><br></p>
+<p class="p1">N01                      Refers to number of tweets not containing Word, and in City                       Word: False  City: True</p>
+<p class="p2"><br></p>
+<p class="p1">N0.                       Refers to the sample size of all tweets not containing Word           </p>
+<p class="p2"><br></p>
+<p class="p1">N1.                       Refers to sample size of all tweets containing Word</p>
+<p class="p2"><br></p>
+<p class="p1">N.0                       Refers to sample size of all tweets not in City</p>
+<p class="p2"><br></p>
+<p class="p1">N.1                       Refers to sample size of all tweets in City</p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1">Now we have to get to creating functions that will give us every component to the above formula.  We will create a dictionary much like the one we called city_corpus_dict, but that maps city names to dictionaries containing words as keys and values as the number of tweets the key word occurs in.  This looks like this:</p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1"><b><i>#Seeds into db dictionary inside dictionary, maps city names to key-value pair of word to # of tweets in city that word occurs in.</i></b></p>
+<p class="p1"><i>def city_tweet_corpus_dict():</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   key = 'city_tweet_corpus_dict'</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   n = session.query(Container).filter(Container.key==key).first()</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   if not n:</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       n={}</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       tweet_to_city_dict = map_cities_to_tweets()</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       for city in cities:</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>           city_tweet_corpus_dict = {}</i></p>
+<p class="p2"><br></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>           for tweet in tweet_to_city_dict[city.name]:</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>               tweet_text = tweet.text.encode("utf-8").lower().translate(string.maketrans("",""),string.punctuation).split()</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>               uniques = set(tweet_text)</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>               tweet_text = list(uniques)</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>               for word in tweet_text:</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>                   if word not in city_tweet_corpus_dict:</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>                       city_tweet_corpus_dict[word]=1</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>                   else:</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>                       previous = city_tweet_corpus_dict[word]</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>                       city_tweet_corpus_dict[word] = previous+1</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>           n[city.name] = city_tweet_corpus_dict</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       d = Container(key=key, value=json.dumps(n))</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       model.session.add(d)</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       model.session.commit()</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   else:</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       n = json.loads(n.value)</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   return n</i></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1">Using this dictionary, we can create a function that will return the N00, N10, N10, N11 values we need to calculate the MI score for each word:</p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1">The function looks like this:</p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1"><b><i>#N11: Tweets containing word and in city; N10: Tweets containing word and not in city; N00: Tweets not containing word, and not in city; N01: Tweets not containing wird and in the city.</i></b></p>
+<p class="p1"><i>def get_tweet_word_counts(word, city):</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   city_tweet_corpus_dict = data.city_tweet_corpus_dict()</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   word_tweet_count_dic = city_tweet_corpus_dict[city.name]</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   N11 = word_tweet_count_dic.get(word,0)</i></p>
+<p class="p2"><br></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   Ndot_1 = data.create_region_tweet_count(city)</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   N01 = Ndot_1 - N11</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   N = data.create_tweet_total_count()</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   Ndot_0 = N - Ndot_1</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   N1_dot = 0</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   for c in cities:</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       tweet_corpus_d = city_tweet_corpus_dict[c.name]</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       N1_dot += tweet_corpus_d.get(word, 0)</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   N10 = N1_dot - N11</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   N00 = Ndot_0 - N10</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   N0_dot = N00 + N01</i></p>
+<p class="p2"><br></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   return {</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>           'N10': float(N10), 'N11': float(N11), 'N01': float(N01), 'N00': float(N00)}</i></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1">Right about now, I’m thinking it could be incredibly useful to store a list of ordered features/words for each city in our DB.  </p>
+<p class="p1">I create a new Features table in my model.py file that looks like this:</p>
+<p class="p2"><br></p>
+<p class="p1"><i>class Features(db.Model):</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   __tablename__ = 'features'</i></p>
+<p class="p2"><br></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   id = Column(Integer, primary_key=True)</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   city_features = Column(String(1000000), nullable=False)</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   city_name = Column(String(128), nullable=False)</i></p>
+<p class="p2"><br></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   def list_of_features(self):</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       features = json.loads(self.city_features)</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       return features</i></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1">Now we can have a function that will populate our DB with these features.  It will look like this:</p>
+<p class="p2"><br></p>
+<p class="p1"><b><i>#Stores ranked list of words in the database<span class="Apple-converted-space"> </span></i></b></p>
+<p class="p1"><i>def populate_db_with_features(city):</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   feature_list =  rank(city)</i></p>
+<p class="p2"><br></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   features = json.dumps(feature_list)</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   print features</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   feature_instance = model.session.query(Features).filter(Features.city_name==city.name).first()</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   if feature_instance:</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       feature_instance.city_features=features</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       model.session.add(feature_instance)</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       model.session.commit()</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   else:</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       new_features = Features(city_features=features, city_name=city.name)</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       model.session.add(new_features)</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       model.session.commit()</i></p>
+<p class="p2"><br></p>
+<p class="p1">If we call populate_db_word_features for ever city in our city list, we will have a fully populated db!</p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1"><b>Note that above function calls rank(city) function which we will talk about below:</b></p>
+<p class="p2"><br></p>
+<p class="p1">Our rank function does the actual ordering of a city’s features. We need to make sure the features  </p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1"><b>#Given a city, creates a list of features ordered by their MI scores</b></p>
+<p class="p1">def rank(city):</p>
+<p class="p1"><span class="Apple-converted-space"> </span>   city_corpus = data.city_corpus_dict()</p>
+<p class="p1"><span class="Apple-converted-space"> </span>   word_dict = city_corpus[city.name]</p>
+<p class="p1"><span class="Apple-converted-space"> </span>   feature_weight_list = []</p>
+<p class="p1"><span class="Apple-converted-space"> </span>   count = 0</p>
+<p class="p1"><span class="Apple-converted-space"> </span>   for word in word_dict.keys():</p>
+<p class="p1"><span class="Apple-converted-space"> </span>       wf = get_tweet_word_counts(word, city)</p>
+<p class="p1"><span class="Apple-converted-space"> </span>       score = mutual_info_score(wf['N11'], wf['N10'], wf['N01'], wf['N00'])</p>
+<p class="p1"><span class="Apple-converted-space"> </span>       feature_weight_list.append((word, score))</p>
+<p class="p1"><span class="Apple-converted-space"> </span>       count += 1</p>
+<p class="p1"><span class="Apple-converted-space"> </span>   feature_weight_list.sort(key=operator.itemgetter(1), reverse=True)</p>
+<p class="p1"><span class="Apple-converted-space"> </span>   winner_list = []</p>
+<p class="p1"><span class="Apple-converted-space"> </span>   feature_word_list = [t[0] for t in feature_weight_list]</p>
+<p class="p1"><span class="Apple-converted-space"> </span>   for word in feature_word_list:</p>
+<p class="p1"><span class="Apple-converted-space"> </span>           winner_list.append(word)</p>
+<p class="p1"><span class="Apple-converted-space"> </span>   return winner_list</p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1">Each “winner_list” for each city will be added to the DB.  </p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1">In the tutorial, I display the top 30 words for each city on a page.  Once I have populated my DB, a short function can retrieve the list of features for a particular city, and display only the top 30 that I want.  If you want an example check below:</p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1"><b><i>#Creates an instance of the features class corresponding to a given city. Returns list of features (attribute of that features instance)</i></b></p>
+<p class="p1"><i>def get_hardcoded_features(city):</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   feature_instance = model.session.query(Features).filter(Features.city_name==city.name).first()</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   features = feature_instance.list_of_features()</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   features = features[:30]</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   return features</i></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1">In our controller, you can use this function to display these 30 words in a template.</p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space"> </span><i>72 @app.route("/city/&lt;city_name&gt;", methods=["GET"])</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>73 def list_features(city_name):</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>74     cities = data.cities</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>75     city = None</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>76     for i in range(0, len(cities)):</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>77         if cities[i].name == city_name:</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>78             feature_list = feature_selection.get_hardcoded_features(cities[i])</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>79             city = cities[i]</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>80     if city:</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>81         latitude = city.lat</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>82         longitude = city.lon</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>83         city_name = city.name</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>84         city_tweet_count = data.create_region_tweet_count(city)</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>85         city_word_count = data.find_leng_city_corpus(city)</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>86     return render_template("city_words.html", features= feature_list, city_name=city_name, latitude=latitude, longitude=longitude, city_tweet_count=city_tweet_count, city_word_count=city_word_count)</i></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1">Note we pass in features from the above function as a variable we can use in our template, but that’s not the only interesting thing happening here.</p>
+<p class="p2"><br></p>
+<p class="p1">In particular, what’s cool is how we are passing over each city’s longitude and latitude into the template.</p>
+<p class="p2"><br></p>
+<p class="p1">Remember the embeddable link given to us when we created a Google Maps Fusion Table?<span class="Apple-converted-space"> </span></p>
+<p class="p2"><br></p>
+<p class="p1">It looked something like this:</p>
+<p class="p2"><br></p>
+<p class="p1"><i>&lt;iframe width="500" height="300" scrolling="no" frameborder="no" src="https://www.google.com/fusiontables/embedviz?viz=MAP&amp;amp;q=select+col4+from+1FNkK0cKm6in_ddkn8yVD5yKYktE4mqNtqOMjm9g&amp;amp;h=false&amp;amp;lat=35.948043952714286&amp;amp;lng=-92.54972734375002&amp;amp;z=4&amp;amp;t=1&amp;amp;l=col4&amp;amp;y=2&amp;amp;tmplt=2"&gt;&lt;/iframe&gt;</i></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p3">The lat and lng above specify where the map will center when the image is rendered in your browser.</p>
+</body>
+</html>

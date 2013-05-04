@@ -1,0 +1,213 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="1187.37">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; line-height: 12.0px; font: 11.0px Arial}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Times; min-height: 14.0px}
+    span.s1 {text-decoration: underline ; color: #1155cc}
+  </style>
+</head>
+<body>
+<p class="p1">We'll be using a few different tools.</p>
+<p class="p2"><br></p>
+<p class="p1"><b>-Twitter Streaming API</b></p>
+<p class="p1"><b>-Google Maps V3 Fusion Table</b></p>
+<p class="p1"><b>-Bayesian text Classification</b></p>
+<p class="p1"><b>-Mutual Information</b></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1">We'll be using the Twitter streaming API (fondly referred to as the 'Garden Hose') as our source of data. You will need to create a developer account at<a href="https://dev.twitter.com/"> <span class="s1">https://dev.twitter.com/</span></a>. After you do this, log in and find the little egg shaped icon on the top right. In the drop down menu, select "My Applications" and under OAuth tools, you'll find your<span class="Apple-converted-space"> </span></p>
+<p class="p2"><br></p>
+<p class="p1"><b>Consumer key*</b></p>
+<p class="p1"><b>Consumer secret*</b></p>
+<p class="p1"><b>Access token*<span class="Apple-converted-space"> </span></b></p>
+<p class="p1"><b>Access token secret*<span class="Apple-converted-space"> </span></b></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1">Make sure you have access to these as we move to the next part, as they are necessary to successfully communicate with the api.</p>
+<p class="p1">You now need to install Tweepy, a Python-Twitter-Client/helper library that will simplify our experience using the Streaming API.  Pip installing Tweepy will get us the most up to date version of the module. Now we can create the python script we will use to gather the Twitter information we want.</p>
+<p class="p2"><br></p>
+<p class="p1"><b>Tweepy support OAuth Authentication:</b></p>
+<p class="p1">First, create the OAuthHandler instance, into which we pass in our consumer token and secret.</p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1">We also include these lines:</p>
+<p class="p2"><br></p>
+<p class="p1"><i>auth.set_access_token(access_key, access_secret)</i></p>
+<p class="p1"><i>api = tweepy.API(auth)</i></p>
+<p class="p1">These make it so that we can re-create the OAuthHandler time and again from our stored token, and is ready to connect.<span class="Apple-converted-space"> </span></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1"><b>Stream Listener:</b></p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space"> </span>Twitter's stream creates an HTTP connection and sends over JSON holding the tweet data we want.   </p>
+<p class="p1">To process tweets we need to implement a Stream Listener class, which inherits from our tweepy module.</p>
+<p class="p2"><br></p>
+<p class="p1"><i>class CustomStreamListener(tweepy.StreamListener):</i></p>
+<p class="p2"><br></p>
+<p class="p1">Since Twitter puts a rate limit on us, we should be cognizant of the number of tweets we have read, and the amount of time we spend gathering tweets.  In my case, I instantiated the stream listener with an attribute of number of tweets read equal to 0.<span class="Apple-converted-space"> </span></p>
+<p class="p2"><br></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>def __init__(self):</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       super(CustomStreamListener, self).__init__()</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       self.num_read = 0</i></p>
+<p class="p2"><br></p>
+<p class="p1"><i>and  if self.num_read &gt; 14000:</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>           exit()</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       self.num_read += 1</i></p>
+<p class="p1">will help us keep track of how many tweets we have gone through.</p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1">We also need code to parse what we find interesting in the tweets so that we can store it.</p>
+<p class="p2"><br></p>
+<p class="p1"><i>def on_status(self, status):</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       if status.geo:</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>           with open('tweet_data_json_18.txt', 'a') as outfile:</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>               output = {}</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>               output['screen_name'] = status.author.screen_name</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>               output['coordinates'] = status.coordinates</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>               output['text'] = status.text</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>               output['created_at'] = status.created_at.strftime('%Y-%m-%dT%H:%M:%S')</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>               outfile.write(json.dumps(output))</i></p>
+<p class="p2"><br></p>
+<p class="p1">In the above code, we are asserting that if an incoming tweet has a known geolocation- complete with its longitude and latitude coordinates, we can then proceed to output the tweet's screen_name, coordinates, text, and date/hour/min/sec of creation into a text file.  Note that we use the json.dumps function, which converts the tweet into json, so that we can store the dictionary structure of the tweet in a string form in the text file.   </p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1">HIDDEN~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</p>
+<p class="p1">get_tweets.py file:</p>
+<p class="p2"><br></p>
+<p class="p1"><i>consumer_key="Q5LGEcvSRFHZq97EzU7FQ"</i></p>
+<p class="p1"><i>consumer_secret="sdZeJGtXHSgxN8ALs5xgpaTn2SSn4jxqqWjnHUPhn0"</i></p>
+<p class="p1"><i>access_key="1278869893-NRPD3OYMKJDdpYRqRiTpFMBhdKhXcxoDVc3Yj11"</i></p>
+<p class="p1"><i>access_secret="Bi43mEBzojlUHyKIG44JW8dhqRdLj0nM1Qquy4DOCPI"</i></p>
+<p class="p2"><br></p>
+<p class="p1"><i>auth = tweepy.OAuthHandler(consumer_key, consumer_secret)</i></p>
+<p class="p1"><i>auth.set_access_token(access_key, access_secret)</i></p>
+<p class="p1"><i>api = tweepy.API(auth)</i></p>
+<p class="p2"><br></p>
+<p class="p1"><i>class CustomStreamListener(tweepy.StreamListener):</i></p>
+<p class="p2"><br></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   def __init__(self):</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       super(CustomStreamListener, self).__init__()</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       self.num_read = 0</i></p>
+<p class="p2"><br></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   def on_status(self, status):</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       if status.geo:</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>           with open('tweet_data_json_18.txt', 'a') as outfile:</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>               output = {}</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>               output['screen_name'] = status.author.screen_name</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>               output['coordinates'] = status.coordinates</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>               output['text'] = status.text</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>               output['created_at'] = status.created_at.strftime('%Y-%m-%dT%H:%M:%S')</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>               outfile.write(json.dumps(output))</i></p>
+<p class="p2"><br></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       if self.num_read &gt; 14000:</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>           exit()</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       self.num_read += 1</i></p>
+<p class="p2"><br></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   def on_error(self, status_code):</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       print &gt;&gt; sys.stderr, 'Encountered error with status code:', status_code</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       return True # Don't kill the stream</i></p>
+<p class="p2"><br></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   def on_timeout(self):</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       print &gt;&gt; sys.stderr, 'Timeout...'</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       return True # Don't kill the stream</i></p>
+<p class="p2"><br></p>
+<p class="p1"><i>sapi = tweepy.streaming.Stream(auth, CustomStreamListener())</i></p>
+<p class="p1"><i>sapi.sample()</i></p>
+<p class="p1">~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</p>
+<p class="p1">The last few bits are functions that tweepy creates to alert you of error and timeouts</p>
+<p class="p1">~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1">Woot you are now gathering twitter data with geolocations!  You could now set up a cron job to grab tweets for you every hour.</p>
+<p class="p2"><br></p>
+<p class="p1">In your terminal, type crontab -e.<span class="Apple-converted-space"> </span></p>
+<p class="p2"><br></p>
+<p class="p1">The format of a cron job is like so:</p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1"><i>44 * * * * python ~/tweets/seed_data/get_tweets.py</i></p>
+<p class="p1">where the asterisks stand for :</p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1"><b>* * * * * *</b></p>
+<p class="p1">| | | | | |<span class="Apple-converted-space"> </span></p>
+<p class="p1">| | | | | +-- Year              (range: 1900-3000)</p>
+<p class="p1">| | | | +---- Day of the Week   (range: 1-7, 1 standing for Monday)</p>
+<p class="p1">| | | +------ Month of the Year (range: 1-12)</p>
+<p class="p1">| | +-------- Day of the Month  (range: 1-31)</p>
+<p class="p1">| +---------- Hour              (range: 0-23)</p>
+<p class="p1">+------------ Minute            (range: 0-59)</p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1">The example says that every hour on the 44th minute, cron will run the script that I provided (Note: The absolute path of the file)</p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1">Now you'll want to load them into your database, so let's set up your model.py file with a Tweet table.</p>
+<p class="p1">You want to make sure that the columns in your table match up with what information you took from the streaming API.</p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1"><i>class Tweet(db.Model):</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   __tablename__ = "tweets"</i></p>
+<p class="p2"><br></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   id = Column(Integer, primary_key = True)</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   screename = Column(String(500), nullable = False)</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   text = Column(String(500), nullable = False)</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   longitude = Column(Float(precision=6), nullable = False)</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   latitude = Column(Float(precision=6), nullable = False)</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   created_at = Column(DateTime , nullable = True)</i></p>
+<p class="p2"><br></p>
+<p class="p1">We also want to create a class method that will be able to read the text file once we convert the json into a into a list of dictionaries. This class method looks like this</p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1"><i>@classmethod</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   def create_from_dict(cls, dict):</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       tweet = Tweet()</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       tweet.screename = dict.get('screen_name')</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       tweet.text = dict.get('text')</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       tweet.created_at = datetime.strptime(dict.get('created_at'), '%Y-%m-%dT%H:%M:%S')</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       #tweet.created_at = datetime.strptime(dict.get('created_at'), 'datetime.datetime(%Y, %m, %d, %H, %M, %S)')</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       geo_location = dict.get('coordinates')</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       coordinate_list = geo_location.get('coordinates')</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       tweet.longitude = coordinate_list[0]</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       tweet.latitude = coordinate_list[1]</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       return tweet</i></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1">Now we can seed our data into our db. In a new seed.py file, we'll create a function that will convert our text file contents from json(which essentially just a string that looks like a dictionary), to a list of actual dictionaries, whose key values we can store in Postgresql. Hint: You'll use json.loads function  </p>
+<p class="p2"><br></p>
+<p class="p1">Before trying this yourself make sure you import:</p>
+<p class="p2"><br></p>
+<p class="p1"><i>import model</i></p>
+<p class="p1"><i>import sqlalchemy.exc</i></p>
+<p class="p1"><i>import json</i></p>
+<p class="p2"><br></p>
+<p class="p1">Hidden Solution:</p>
+<p class="p1"><i>def load_tweet_data(session):</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   in_file = open("seed_data/seeded_files/tweet_data_json_18.txt")</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   input_text = in_file.read()</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   list_of_dicts = json.loads(input_text)</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   for dict in list_of_dicts:</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       tweet = model.Tweet.create_from_dict(dict)</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       session.add(tweet)</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       session.commit()</i></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1">So now, we should have successfully seeded our db with our twitter information.</p>
+<p class="p2"><br></p>
+<p class="p1">~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</p>
+</body>
+</html>

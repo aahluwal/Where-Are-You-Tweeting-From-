@@ -1,0 +1,236 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="1187.37">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; line-height: 12.0px; font: 11.0px Arial}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Times; min-height: 14.0px}
+    p.p3 {margin: 0.0px 0.0px 0.0px 0.0px; font: 11.0px Arial}
+    p.p4 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+  </style>
+</head>
+<body>
+<p class="p1"><b>Google Fusion Table and Haversine<span class="Apple-converted-space"> </span></b></p>
+<p class="p2"><br></p>
+<p class="p1">Woo! So now your db has a table called Tweets in which for each id, you store your user "screen_name", tweet "text", "created-at", and tweet<span class="Apple-converted-space"> </span></p>
+<p class="p1">"longitude" and "latitude".  </p>
+<p class="p2"><br></p>
+<p class="p1">Now we need to take each tweet in our sample and assign it to whichever city is closest amongst 9 major cities in the US: Los Angeles, San Francisco, Boston, New York, Miami, Atlanta, Houston, Seattle, or Chicago. We will use each tweet's longitude and latitude to calculate how far away each major city is, and then, given that the tweet is within a certain distance (in our case, 150 miles) classify it as belonging to the city region.  </p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1">First we need to query our db and create a list of tweets in a new file called data.py:</p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1"><b><i>#Returns list of US tweets- Note: To increase speed I have placed indexes on longitude and latitude in tweets table using Postgresql.</i></b></p>
+<p class="p1"><i>ALL_TWEETS = []</i></p>
+<p class="p1"><i>def get_tweet_list():</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   global ALL_TWEETS</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   if ALL_TWEETS:</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       return ALL_TWEETS</i></p>
+<p class="p2"><br></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   all_tweets = session.query(Tweet).filter(Tweet.longitude &gt; -125.0).filter(Tweet.longitude &lt; -65.0).filter(Tweet.latitude &gt; 25.0).filter(Tweet.latitude &lt; 50.0).all()</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   list_of_tweets = []</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   for tweet in all_tweets:</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       if tweet.text.startswith("RT"):</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>           continue</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       else:</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>           list_of_tweets.append(tweet)</i></p>
+<p class="p2"><br></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   ALL_TWEETS = list_of_tweets</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   print "updating tweet list from db"</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   return ALL_TWEETS</i></p>
+<p class="p2"><br></p>
+<p class="p1">In this code, we have created a global variable called ALL_TWEETS to prevent us from querying the db unnecessarily. To create the list, we check each tweet within the US and disregard it only if it begins with "RT" (we don't want any retweets corrupting our data since we only want original authors)</p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1">Now we have the tweets, and we are ready to classify them according to closest city region.</p>
+<p class="p2"><br></p>
+<p class="p1">To make sure we have an anchor point to compare the tweets' locations to, I create a class for each of the city regions  we use (in model.py) to classify tweets.  It includes the city's longitude and latitude and name. For example:</p>
+<p class="p2"><br></p>
+<p class="p1"><i>class Los_Angeles():</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   def __init__(self):</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       #los_angeles = Los_Angeles()</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       self.lon = -118.2436</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       self.lat = 34.0522</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       self.name = 'Los Angeles'</i></p>
+<p class="p2"><br></p>
+<p class="p1">You do the rest</p>
+<p class="p1">Note that this means that we will need to instantiate these classes in order to use their name attribute.  I globally instantiate all of the cities in my data.py file like this:<span class="Apple-converted-space"> </span></p>
+<p class="p2"><br></p>
+<p class="p1"><i>#global instances of each city</i></p>
+<p class="p1"><i>los_angeles = Los_Angeles()</i></p>
+<p class="p1"><i>san_francisco = San_Francisco()</i></p>
+<p class="p1"><i>houston = Houston()</i></p>
+<p class="p1"><i>miami = Miami()</i></p>
+<p class="p1"><i>atlanta = Atlanta()</i></p>
+<p class="p1"><i>new_york = New_York()</i></p>
+<p class="p1"><i>seattle = Seattle()</i></p>
+<p class="p1"><i>chicago = Chicago()</i></p>
+<p class="p1"><i>boston = Boston()</i></p>
+<p class="p1"><i>#global list of instances</i></p>
+<p class="p1"><i>cities = [los_angeles, san_francisco, houston, miami, atlanta, new_york, chicago, seattle, boston]</i></p>
+<p class="p2"><br></p>
+<p class="p1">This way, when I import data.py into my other files, I can freely use cities as a variable (which comes in handy!)</p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1"><b>Haversine:</b></p>
+<p class="p2"><br></p>
+<p class="p1">To calculate how far the tweet's location is from a given city, we need to account for the curvature of the earth.  You can can find a lot of information on this on StackOverflow, but the most simple formula I could find is as follows:<span class="Apple-converted-space"> </span></p>
+<p class="p2"><br></p>
+<p class="p1"><i>from math import radians, cos, sin, asin, sqrt</i></p>
+<p class="p2"><br></p>
+<p class="p1"><i>def haversine(lon1, lat1, lon2, lat2):</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>               """</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>               Calculate the great circle distance between two points<span class="Apple-converted-space"> </span></i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   on the earth (specified in decimal degrees)</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>               """</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>               # convert decimal degrees to radians<span class="Apple-converted-space"> </span></i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>               lon1, lat1, lon2, lat2 = map(radians, [lon1, lat1,</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>                                               lon2, lat2])</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>               # haversine formula<span class="Apple-converted-space"> </span></i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>               dlon = lon2 - lon1</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>               dlat = lat2 - lat1</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>               a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>               c = 2 * asin(sqrt(a))</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>               km = 6367 * c</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>               return km</i></p>
+<p class="p2"><br></p>
+<p class="p1">Here I created a separate file to house the function used to calculate the distance between any two points on earth.</p>
+<p class="p2"><br></p>
+<p class="p1">Now we can use this function to  create a list of tuples structured as (tweet, closest_city).</p>
+<p class="p2"><br></p>
+<p class="p1">We'll need three helper functions to create a dictionary that will map city names to a list of tweets associated with that city name</p>
+<p class="p2"><br></p>
+<p class="p1"><b>. 1) calculating the distance between two points on earth:<span class="Apple-converted-space"> </span></b></p>
+<p class="p2"><br></p>
+<p class="p1"><b><i>#Pythagorean theorem with haversine to account for earth's curvature. Calculates distance between tweet and city</i></b></p>
+<p class="p1"><i>def distance_between_2_points((lon1, lat1),(lon2, lat2)):</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   d = haversine.haversine(lon1, lat1, lon2, lat2)</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   return float(d) </i> </p>
+<p class="p2"><br></p>
+<p class="p1"><b>2. Boolean function that will check to see if a tweet is within 150 miles (240 km) of a given city:</b></p>
+<p class="p2"><br></p>
+<p class="p1"><b><i>#Limit tweet results to be within 150 miles/240km of a major city</i></b></p>
+<p class="p1"><i>def distanceIsWithinHundredMiles(lon1,lat1,lon2,lat2):</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   d = haversine.haversine(lon1, lat1, lon2, lat2)</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   if d &lt; 240:</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       return True</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   else:</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       return False</i></p>
+<p class="p2"><br></p>
+<p class="p1"><b>3. Function returning a list of tuples in the form of (city, tweet) where the city is one of the 9 major cities closest to and within 150 miles of the given tweet</b></p>
+<p class="p2"><br></p>
+<p class="p1"><b><i>#Return list of tweets and their corresponding, closest city, given that the city is within 150 miles of the tweet<span class="Apple-converted-space"> </span></i></b></p>
+<p class="p1"><i>def closest_major_cities(list_of_tweets):</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   tweet_cities = []</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   for tweet in list_of_tweets:</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       closest_city = cities[0]</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       for i in range(1, len(cities)):</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>           new_city = cities[i]</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>           if distance_between_2_points((closest_city.lon, closest_city.lat),(tweet.longitude,tweet.latitude)) &gt; distance_between_2_points((new_city.lon, new_city.lat), (tweet.longitude,tweet.latitude)):</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>               closest_city = new_city</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       if distanceIsWithinHundredMiles(tweet.longitude, tweet.latitude, closest_city.lon, closest_city.lat):</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>           tweet_cities.append((tweet, closest_city))</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   return tweet_cities</i></p>
+<p class="p2"><br></p>
+<p class="p1">These helper functions culminate in the following function, which, as I stated before, maps each of the 9 cities to a list of tweets that belong to it.  This function will come on hand when it comes time to plotting tweets on a map for data visualization.  </p>
+<p class="p2"><br></p>
+<p class="p1"><b><i>#Returns dictionary with cities/instances as keys and values of lists of the corresponding tweets for each city<span class="Apple-converted-space"> </span></i></b></p>
+<p class="p1"><i>CITY_TWEET_MAP = None</i></p>
+<p class="p1"><i>def map_cities_to_tweets():</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   global CITY_TWEET_MAP</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   if CITY_TWEET_MAP:</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       return CITY_TWEET_MAP</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   list_of_us_tweets = get_tweet_list()</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   major_cities = closest_major_cities(list_of_us_tweets)</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   tweet_to_city_dict = {}</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   for i in range(0, len(major_cities)):</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       tweet = major_cities[i][0]</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       city_name = major_cities[i][1].name</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       if city_name not in tweet_to_city_dict:</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>           tweet_to_city_dict[city_name] = [tweet]</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>       else:</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>           previous = tweet_to_city_dict[city_name]</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>           tweet_to_city_dict[city_name] = tweet_to_city_dict[city_name] + [tweet]</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   CITY_TWEET_MAP = tweet_to_city_dict</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   print "updating new city_tweet_map from db"</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>   return CITY_TWEET_MAP</i></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1">WOOT! Now:<b>GOOGLE FUSION TABLE</b></p>
+<p class="p1">We want to be able to display all of the tweets' longitudes and latitudes on a cool map so that we can visualize this data.  Let's turn to Google Fusion Table documentation to do this very cleanly and easily.  </p>
+<p class="p2"><br></p>
+<p class="p1">In this example, we will create a CSV file that the Google Fusion Table API can easily read. We want to create a new file that will take the information we store in our map_cities_to_tweets function, and write it into a csv file that we can upload.  </p>
+<p class="p2"><br></p>
+<p class="p1">The main function in my new fusion_table.py file looks like this:</p>
+<p class="p2"><br></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>1 from model import Tweet, Chicago, Los_Angeles, San_Francisco, Houston, Atlanta, New_York, Seattle, Miami, Boston</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span> 2 from math import sqrt, log</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span> 3 import math</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span> 4 import model</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span> 5 import string</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span> 6 from data import los_angeles, chicago, san_francisco, new_york, miami, atlanta, houston, seattle, boston</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span> 7 import data</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span> 8 import csv</i></p>
+<p class="p1"><i>….</i></p>
+<p class="p2"><br></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>24 def main():</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>25     with open('fusion.csv', 'a') as csvfile:</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>26         fusion_table_writer = csv.writer(csvfile, delimiter=',', escapechar='/', quoting=csv.QUOTE_NONE)</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>27         city_to_tweet_dict = data.map_cities_to_tweets()</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>28         a_row = ['city', 'screename', 'text', 'latitude', 'longitude', 'created_at']</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>29         fusion_table_writer.writerow(a_row)</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>30<span class="Apple-converted-space"> </span></i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>31         for city in city_to_tweet_dict.keys():</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>32             tweet_list = city_to_tweet_dict[city]</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>33             for tweet in tweet_list:</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>34                 another_row = [ city, tweet.screename, tweet.text.encode("utf").lower().translate(string.maketrans("",""),string.punctuation), tweet.l    atitude, tweet.longitude, tweet.created_at]</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>35                 fusion_table_writer.writerow(another_row)</i></p>
+<p class="p2"><br></p>
+<p class="p1">Note that we call the map_cities_to_tweets function that we created above in order to get the information to fill our CSV file appropriately.<span class="Apple-converted-space"> </span></p>
+<p class="p2"><br></p>
+<p class="p1">If you created the file as is, all of the tweets you upload to Google Fusion Maps would be one color. Because we have 9 cities, I think we should have 9 different representing colors, and the API makes this pretty simple as long as we create a dictionary of all of the colors we want to associate with each city:</p>
+<p class="p2"><br></p>
+<p class="p1"><i>11<span class="Apple-converted-space"> </span></i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>12 city_to_color_map = {</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>13     'Los Angeles': 'small_red',</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>14     'San Francisco': 'small_blue',</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>15     'Chicago': 'small_green',</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>16     'Miami': 'small_yellow',</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>17     'Houston': 'small_purple',</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>18     'New York': 'small_red',</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>19     'Seattle': 'small_yellow',</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>20     'Atlanta': 'small_blue',</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>21     'Boston': 'small_yellow'</i></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>22     }</i></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1">and change lines 28 and 34 to include color in the row we are adding to the CSV file like so:</p>
+<p class="p2"><br></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>28         a_row = ['color','city', 'screename', 'text', 'latitude', 'longitude', 'created_at']</i></p>
+<p class="p2"><br></p>
+<p class="p1"><i><span class="Apple-converted-space"> </span>34                 another_row = [city_to_color_map[city], city, tweet.screename, tweet.text.encode("utf").lower().translate(string.maketrans("",""),string.punctuation), tweet.latitude, tweet.longitude, tweet.created_at]</i></p>
+<p class="p2"><br></p>
+<p class="p1">Now if we run our fusion_table.py file, we should end up with a new file called fusion.csv in our project directory.<span class="Apple-converted-space"> </span></p>
+<p class="p2"><br></p>
+<p class="p1">Go to drive.google.com and sign in. Press create on the left hand side and select Fusion Table.  It will take you through the process of uploading your csv file.  Once your map is created, you should see a bunch of small red marker dots along a map of the US, each representing a tweet from our csv file.  Remember how we specified colors?<span class="Apple-converted-space"> </span></p>
+<p class="p2"><br></p>
+<p class="p1">Go to the Tools tab on the left and select change map style.  Click on Column, and select color as the column.  This means we are filtering the points on our map by the colors we specified for each region in our csv file.  Wa la!</p>
+<p class="p2"><br></p>
+<p class="p1">Now we can go to the tools tab and click on Publish.  There we find an embeddable link to the map that we've created.  We will include this in our application templates.  </p>
+<p class="p2"><br></p>
+<p class="p1">Note: I set the width to 800 and height to 600 in my templates on all of my pages.  </p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p3">~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</p>
+<p class="p4"><br></p>
+<p class="p4"><br></p>
+</body>
+</html>
