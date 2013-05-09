@@ -348,7 +348,7 @@ def get_set_of_words():
 	city_features = model.session.query(Features).filter(Features.city_name==city.name).first()
 	city_features = city_features.city_features
 	city_features = json.loads(city_features)
-	city_features = city_features[:101]
+	city_features = city_features[:500]
 	features = features.union(set(city_features))
     return features 
 
@@ -357,7 +357,7 @@ def get_set_of_words():
 #Improved text classification by only classifying words that appear in top 200 words within any region 
 def prob_tweet_from_city(city,tweet_string):
     total_start = datetime.datetime.now()
-    #stop_words = {'in':1,'it':1, 'every':1,'got':1, 'where':1,'maybe':1, 'came':1, 'along':1,'got':1, 'did':1,'every':1, 'how':1,'his':1, 'took':1, 'could':1, 'would':1, 'will':1, 'at':1, 'should':1, 'can':1, 'we':1, 'us':1, 'as':1,'at':1, 'him':1,'to':1,'sometimes':1, 'you':1, 'were':1, 'i':1, 'my':1, 'her':1, 'he':1,'me':1, 'this':1, 'was':1, 'had':1,'all':1, 'the':1, 'but':1, 'or':1, 'and':1,'there':1, 'it':1, 'is':1, 'then':1, 'a':1, 'an':1, 'be':1, 'for':1, 'of':1, 'what':1, 'when':1, 'why':1, 'where':1, 'are':1, 'am':1, 'because':1, 'they':1,'she':1, 'he':1}
+    stop_words = {'on':1, 'that':1, 'in':1,'it':1, 'every':1,'got':1, 'where':1,'maybe':1, 'came':1, 'along':1,'got':1, 'did':1,'every':1, 'how':1,'his':1, 'took':1, 'could':1, 'would':1, 'will':1, 'at':1, 'should':1, 'can':1, 'we':1, 'us':1, 'as':1,'at':1, 'him':1,'to':1,'sometimes':1, 'you':1, 'were':1, 'i':1, 'my':1, 'her':1, 'he':1,'me':1, 'this':1, 'was':1, 'had':1,'all':1, 'the':1, 'but':1, 'or':1, 'and':1,'there':1, 'it':1, 'is':1, 'then':1, 'a':1, 'an':1, 'be':1, 'for':1, 'of':1, 'what':1, 'when':1, 'why':1, 'where':1, 'are':1, 'am':1, 'because':1, 'they':1,'she':1, 'he':1}
     x = 0
     num_queries = 0
     total_time = datetime.timedelta()
@@ -365,7 +365,7 @@ def prob_tweet_from_city(city,tweet_string):
     top_features = get_set_of_words()
     for word in tweet_words:
 #	if word not in stop_words:
-	if word in top_features:
+	if word in top_features and word not in stop_words:
 	    num_queries += 1
 	    start = datetime.datetime.now()
 	    word_instance  = session.query(Word).filter(Word.word==word).filter( Word.city==city.name).first()
