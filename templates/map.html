@@ -31,6 +31,9 @@
 			var $featureCount = $('.featureCount');
 			var featureCount = {{city_corpus_leng_dict["Los Angeles"] | safe}};
 			$featureCount.text(featureCount + " Unique Words in Los Angeles");
+			var $tweetCount = $('.tweetCount');
+			var tweetCount = {{city_tweet_count_dict["Los Angeles"] | safe}};
+			$tweetCount.text(tweetCount + " Tweets in Los Angeles");
 			$('.losAngeles').animate({
 			    fontSize: "20px"
 			});
@@ -40,6 +43,7 @@
 		    function() {
 			$('.features').empty();
 			$('.featureCount').empty();
+			$('.tweetCount').empty();
 			$('.losAngeles').animate({
 			    fontSize: "15px"
 			});
@@ -59,6 +63,9 @@
 			var $featureCount = $('.featureCount');
 			var featureCount = {{city_corpus_leng_dict["New York"]| safe}};
 			$featureCount.text(featureCount + " Unique Words in New York");
+			var $tweetCount = $('.tweetCount');
+			var tweetCount = {{city_tweet_count_dict["New York"] | safe}};
+			$tweetCount.text(tweetCount + " Tweets in New York");
 			$('.newYork').animate({
 			    fontSize: "20px"
 			});
@@ -66,6 +73,7 @@
 		    function() {
 			$('.features').empty();
 			$('.featureCount').empty();
+			$('.tweetCount').empty();
 			$('.newYork').animate({
 			    fontSize: "15px"
 			});
@@ -83,6 +91,9 @@
 			var $featureCount = $('.featureCount');
 			var featureCount = {{city_corpus_leng_dict["Miami"]|safe}};
 			$featureCount.text(featureCount+ " Unique Words in Miami");
+			var $tweetCount = $('.tweetCount');
+			var tweetCount = {{city_tweet_count_dict["Miami"] | safe}};
+			$tweetCount.text(tweetCount + " Tweets in Miami");
 			$('.miami').animate({
 			    fontSize: "20px"
 			});
@@ -91,6 +102,7 @@
 		    function() {
 			$('.features').empty();
 			$('.featureCount').empty();
+			$('.tweetCount').empty();
 			$('.miami').animate({
 			    fontSize: "15px"
 			});
@@ -108,6 +120,9 @@
 			var $featureCount = $('.featureCount');
 			var featureCount = {{city_corpus_leng_dict["Chicago"]|safe}};
 			$featureCount.text(featureCount+ " Unique Words in Chicago");
+			var $tweetCount = $('.tweetCount');
+			var tweetCount = {{city_tweet_count_dict["Chicago"] | safe}};
+			$tweetCount.text(tweetCount + " Tweets in Chicago");
 			$('.chicago').animate({
 			    fontSize: "20px"
 			});
@@ -115,6 +130,7 @@
 		    function() {
 			$('.features').empty();
 			$('.featureCount').empty();
+			$('.tweetCount').empty();
 			$('.chicago').animate({
 			    fontSize: "15px"
 			});
@@ -132,6 +148,9 @@
 			var $featureCount = $('.featureCount');
 			var featureCount = {{city_corpus_leng_dict["Atlanta"]|safe}};
 			$featureCount.text(featureCount+ " Unique Words in Atlanta");
+			var $tweetCount = $('.tweetCount');
+			var tweetCount = {{city_tweet_count_dict["Atlanta"] | safe}};
+			$tweetCount.text(tweetCount + " Tweets in Atlanta");
 			$('.atlanta').animate({
 			    fontSize: "20px"
 			});
@@ -139,6 +158,7 @@
 		    function() {
 			$('.features').empty();
 			$('.featureCount').empty();
+			$('.tweetCount').empty();
 			$('.atlanta').animate({
 			    fontSize: "15px"
 			});
@@ -155,6 +175,9 @@
 			var $featureCount = $('.featureCount');
 			var featureCount = {{city_corpus_leng_dict["San Francisco"]|safe}};
 			$featureCount.text(featureCount+ " Unique Words in San Francisco");
+			var $tweetCount = $('.tweetCount');
+			var tweetCount = {{city_tweet_count_dict["San Francisco"] | safe}};
+			$tweetCount.text(tweetCount + " Tweets in San Francisco");
 			$('.sanFrancisco').animate({
 			    fontSize: "20px"
 			});
@@ -162,6 +185,7 @@
 		    function() {
 			$('.features').empty();
 			$('.featureCount').empty();
+			$('.tweetCount').empty();
 			$('.sanFrancisco').animate({
 			    fontSize: "15px"
 			});
@@ -179,6 +203,9 @@
 			var $featureCount = $('.featureCount');
 			var featureCount = {{city_corpus_leng_dict["Houston"]|safe}};
 			$featureCount.text(featureCount+ " Unique Words in Houston");
+			var $tweetCount = $('.tweetCount');
+			var tweetCount = {{city_tweet_count_dict["Houston"] | safe}};
+			$tweetCount.text(tweetCount + " Tweets in Houston");
 			$('.houston').animate({
 			    fontSize:"20px"
 			});
@@ -186,6 +213,7 @@
 		    function() {
 			$('.features').empty();
 			$('.featureCount').empty();
+			$('.tweetCount').empty();
 			$('.houston').animate({
 			    fontSize: "15px"
 			});
@@ -202,6 +230,9 @@
 			var $featureCount = $('.featureCount');
 			var featureCount = {{city_corpus_leng_dict["Boston"]|safe}};
 			$featureCount.text(featureCount+ " Unique Words in Boston");
+			var $tweetCount = $('.tweetCount');
+			var tweetCount = {{city_tweet_count_dict["Boston"] | safe}};
+			$tweetCount.text(tweetCount + " Tweets in Boston");
 			$('.boston').animate({
 			    fontSize: "20px"
 			});
@@ -209,6 +240,7 @@
 		    function() {
 			$('.features').empty();
 			$('.featureCount').empty();
+			$('.tweetCount').empty();
 			$('.boston').animate({
 			    fontSize: "15px"
 			});
@@ -225,6 +257,9 @@
 			var $featureCount = $('.featureCount');
 			var featureCount = {{city_corpus_leng_dict["Seattle"]|safe}};
 			$featureCount.text(featureCount+ " Unique Words in Seattle");
+			var $tweetCount = $('.tweetCount');
+			var tweetCount = {{city_tweet_count_dict["Seattle"]|safe}};
+			$tweetCount.text(tweetCount + " Tweets in Seattle");
 			$('.seattle').animate({
 			    fontSize: "20px"
 		     });
@@ -232,6 +267,7 @@
 		    function() {
 			$('.features').empty();
 			$('.featureCount').empty();
+			$('.tweetCount').empty();
 			$('.seattle').animate({
 			    fontSize: "15px"
 			});
@@ -305,9 +341,12 @@
 				<span><h4>Hover over city for key features</h4></span>
 				<br>
 				
-				<h5 class="featureCount"> </h5>
+				<div><h5 class="tweetCount"></h5>
+				    <br>
+				    <h5 class="featureCount"></h5></div>
+
 			    </div>
-			    <br>
+			
 			    <ul class="features"> 
 			
 			    </ul>
