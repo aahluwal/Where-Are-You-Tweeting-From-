@@ -37,9 +37,14 @@ def classify_text():
     start = datetime.datetime.now()
     feature_strings_dict = {}
     city_corpus_leng_dict = {}
+    city_tweet_count_dict = {}
     for city in cities:
 	corpus_leng = data.find_leng_city_corpus(city)
 	city_corpus_leng_dict[city.name] = corpus_leng
+	
+	city_tweet_count = data.create_region_tweet_count(city)
+	city_tweet_count_dict[city.name] = city_tweet_count
+
 	feature_strings = feature_selection.included_feature_strings(city, tweet)
 	feature_strings_dict[city.name] = feature_strings
     end = datetime.datetime.now()
@@ -58,7 +63,7 @@ def classify_text():
 	names.append(city_name)
     end = datetime.datetime.now()
     print 'generating lists takes: %s' % (end - start)
-    return render_template("map.html", tweet=tweet, names=names, city_corpus_leng_dict=city_corpus_leng_dict, feature_strings_dict=feature_strings_dict, rankings=rankings)
+    return render_template("map.html", tweet=tweet, city_tweet_count_dict=city_tweet_count_dict, names=names, city_corpus_leng_dict=city_corpus_leng_dict, feature_strings_dict=feature_strings_dict, rankings=rankings)
 
 @app.route("/classify_text", methods=["GET"])
 def classify():
