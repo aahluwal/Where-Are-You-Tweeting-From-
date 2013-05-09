@@ -350,7 +350,6 @@ def get_set_of_words():
 	city_features = json.loads(city_features)
 	city_features = city_features[:500]
 	features = features.union(set(city_features))
-    print features
     return features 
 
 #final formula for Prob(City/Tweet)-- puting together components from two function below this.p = (p1p2..pn)/(p1p2..pn+(1-p1)(1-p2)..(1-pn)) 
