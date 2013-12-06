@@ -12,7 +12,7 @@ I used documentation from http://nlp.stanford.edu/IR-book/html/htmledition/mutua
 to find each regions most significant "features" or words.
 
 I used documentation from http://nlp.stanford.edu/IR-book/html/htmledition/naive-bayes-text-classification-1.html to implement a 
-Naive Bayes Text classifier than can predict where a tweet with an unknown longitude/latitude is from, based on an
+Naive Bayes Text classifier that can predict where a tweet with an unknown longitude/latitude is from, based on an
 analysis of past tweets.  The classifier tokenizes a user's input/tweet, and assigns a weighted value (Probability of a word, given a city) 
 to every word in the input. The classifier also takes into account the sample set of a given region, and finally ranks each city-- making the winner
 the final prediction.  
@@ -21,5 +21,5 @@ I used the results from applying Mutual Information to better communicate to the
 When you hover over a city amongst the rankings, a user can see if/what words from their tweet are significant words to 
 what city regions.  
 
-The link to the final project online is www.where-are-you-tweeting-from.herokuapp.com
+The link to the final project online is where-are-you-tweeting-from.herokuapp.com
 
